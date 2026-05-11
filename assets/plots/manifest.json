@@ -1,7 +1,7 @@
 {
-  "generated_utc": "2026-05-11T11:55:22+00:00",
+  "generated_utc": "2026-05-11T11:58:04+00:00",
   "generator": "scripts/generate_science_plots.py",
-  "catalog_mode": "seed-deep-science",
+  "catalog_mode": "nasa-tap",
   "target_count": 16,
   "target_plots": {
     "TRAPPIST-1 e": {
@@ -15,12 +15,6 @@
       "transit_light_curve": "./assets/plots/targets/trappist-1-f/transit_light_curve.svg",
       "radial_velocity": "./assets/plots/targets/trappist-1-f/radial_velocity.svg",
       "mass_radius_context": "./assets/plots/targets/trappist-1-f/mass_radius_context.svg"
-    },
-    "Proxima Centauri b": {
-      "habitable_zone": "./assets/plots/targets/proxima-centauri-b/habitable_zone.svg",
-      "transit_light_curve": "./assets/plots/targets/proxima-centauri-b/transit_light_curve.svg",
-      "radial_velocity": "./assets/plots/targets/proxima-centauri-b/radial_velocity.svg",
-      "mass_radius_context": "./assets/plots/targets/proxima-centauri-b/mass_radius_context.svg"
     },
     "Kepler-186 f": {
       "habitable_zone": "./assets/plots/targets/kepler-186-f/habitable_zone.svg",
@@ -52,12 +46,6 @@
       "radial_velocity": "./assets/plots/targets/gj-486-b/radial_velocity.svg",
       "mass_radius_context": "./assets/plots/targets/gj-486-b/mass_radius_context.svg"
     },
-    "55 Cancri e": {
-      "habitable_zone": "./assets/plots/targets/55-cancri-e/habitable_zone.svg",
-      "transit_light_curve": "./assets/plots/targets/55-cancri-e/transit_light_curve.svg",
-      "radial_velocity": "./assets/plots/targets/55-cancri-e/radial_velocity.svg",
-      "mass_radius_context": "./assets/plots/targets/55-cancri-e/mass_radius_context.svg"
-    },
     "GJ 1214 b": {
       "habitable_zone": "./assets/plots/targets/gj-1214-b/habitable_zone.svg",
       "transit_light_curve": "./assets/plots/targets/gj-1214-b/transit_light_curve.svg",
@@ -82,23 +70,35 @@
       "radial_velocity": "./assets/plots/targets/wasp-12-b/radial_velocity.svg",
       "mass_radius_context": "./assets/plots/targets/wasp-12-b/mass_radius_context.svg"
     },
-    "51 Pegasi b": {
-      "habitable_zone": "./assets/plots/targets/51-pegasi-b/habitable_zone.svg",
-      "transit_light_curve": "./assets/plots/targets/51-pegasi-b/transit_light_curve.svg",
-      "radial_velocity": "./assets/plots/targets/51-pegasi-b/radial_velocity.svg",
-      "mass_radius_context": "./assets/plots/targets/51-pegasi-b/mass_radius_context.svg"
+    "xi Aql b": {
+      "habitable_zone": "./assets/plots/targets/xi-aql-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/xi-aql-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/xi-aql-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/xi-aql-b/mass_radius_context.svg"
     },
-    "TRAPPIST-1 h": {
-      "habitable_zone": "./assets/plots/targets/trappist-1-h/habitable_zone.svg",
-      "transit_light_curve": "./assets/plots/targets/trappist-1-h/transit_light_curve.svg",
-      "radial_velocity": "./assets/plots/targets/trappist-1-h/radial_velocity.svg",
-      "mass_radius_context": "./assets/plots/targets/trappist-1-h/mass_radius_context.svg"
+    "ups Leo b": {
+      "habitable_zone": "./assets/plots/targets/ups-leo-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/ups-leo-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/ups-leo-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/ups-leo-b/mass_radius_context.svg"
     },
-    "TRAPPIST-1 g": {
-      "habitable_zone": "./assets/plots/targets/trappist-1-g/habitable_zone.svg",
-      "transit_light_curve": "./assets/plots/targets/trappist-1-g/transit_light_curve.svg",
-      "radial_velocity": "./assets/plots/targets/trappist-1-g/radial_velocity.svg",
-      "mass_radius_context": "./assets/plots/targets/trappist-1-g/mass_radius_context.svg"
+    "ups And d": {
+      "habitable_zone": "./assets/plots/targets/ups-and-d/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/ups-and-d/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/ups-and-d/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/ups-and-d/mass_radius_context.svg"
+    },
+    "ups And c": {
+      "habitable_zone": "./assets/plots/targets/ups-and-c/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/ups-and-c/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/ups-and-c/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/ups-and-c/mass_radius_context.svg"
+    },
+    "ups And b": {
+      "habitable_zone": "./assets/plots/targets/ups-and-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/ups-and-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/ups-and-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/ups-and-b/mass_radius_context.svg"
     }
   },
   "global_plots": {
