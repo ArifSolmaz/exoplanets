@@ -33,7 +33,7 @@
   --shadow-small: 0 7px 22px rgba(73, 54, 31, 0.10);
   --radius: 18px;
   --radius-small: 11px;
-  --max-width: 1180px;
+  --max-width: 1360px;
   --serif: Georgia, Cambria, "Times New Roman", Times, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -498,6 +498,19 @@ button {
   border-radius: calc(var(--radius) + 4px);
   background: var(--paper-panel);
   box-shadow: var(--shadow-small);
+}
+
+#science-lab.section-shell {
+  width: min(1880px, calc(100vw - clamp(1rem, 3vw, 3.5rem)));
+  max-width: none;
+}
+
+#science-lab.section-panel {
+  padding: clamp(1rem, 1.8vw, 2rem);
+}
+
+#science-lab .section-heading {
+  max-width: 1180px;
 }
 
 .section-heading {
@@ -1133,10 +1146,99 @@ input[type="range"] {
   margin: 0;
 }
 
+
+
+/* Large-figure science lab: use the browser width for readability while still collapsing cleanly. */
+#science-lab .lab-layout {
+  grid-template-columns: 1fr;
+  gap: clamp(1rem, 1.8vw, 1.6rem);
+}
+
+#science-lab .lab-summary-card {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.58fr) minmax(0, 1.42fr);
+  gap: clamp(0.9rem, 1.5vw, 1.4rem);
+  align-items: start;
+}
+
+#science-lab .lab-target-note {
+  min-width: 0;
+}
+
+#science-lab .derived-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.7rem;
+}
+
+#science-lab .visual-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(820px, 100%), 1fr));
+  gap: clamp(1rem, 1.6vw, 1.45rem);
+}
+
+#science-lab .visual-card {
+  padding: clamp(0.8rem, 1.2vw, 1.15rem);
+  min-height: 0;
+}
+
+#science-lab .chart-heading {
+  margin-bottom: 0.85rem;
+}
+
+#science-lab .chart-heading h3 {
+  font-size: clamp(1.35rem, 1.65vw, 2.15rem);
+}
+
+#science-lab .chart-heading span {
+  font-size: clamp(0.86rem, 0.9vw, 1rem);
+}
+
+#science-lab .lab-graphic {
+  min-height: 0;
+  overflow: visible;
+}
+
+#science-lab .python-figure {
+  display: block;
+  min-height: 0;
+  height: auto;
+}
+
+#science-lab .python-figure img {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  object-fit: initial;
+}
+
+#science-lab .python-figure figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.45rem 1rem;
+  font-size: 0.82rem;
+}
+
+.plot-image-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.plot-open-link {
+  color: var(--blue);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 @media (max-width: 1060px) {
   .hero,
   .lab-layout,
   .explorer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  #science-lab .lab-summary-card {
     grid-template-columns: 1fr;
   }
 
@@ -1192,6 +1294,14 @@ input[type="range"] {
   .data-grid,
   .planet-grid {
     grid-template-columns: 1fr;
+  }
+
+  #science-lab.section-shell {
+    width: min(100%, calc(100vw - 1rem));
+  }
+
+  #science-lab .section-heading p:not(.eyebrow) {
+    font-size: 0.97rem;
   }
 
   .wide-card {
@@ -1274,5 +1384,234 @@ input[type="range"] {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+.python-figure {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  background: var(--paper-soft);
+}
+
+.python-figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 218px;
+  object-fit: contain;
+}
+
+.python-figure figcaption {
+  border-top: 1px solid rgba(210, 195, 173, 0.65);
+  padding: 0.45rem 0.6rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  background: rgba(255, 252, 244, 0.72);
+}
+
+/* Responsive figure readability pass — May 2026
+   Use the available browser width for science figures and keep each plot legible
+   before returning to multi-column layouts only on very wide screens. */
+:root {
+  --max-width: 1760px;
+  --reader-width: 980px;
+}
+
+.section-shell {
+  width: min(var(--max-width), calc(100% - clamp(1rem, 2.2vw, 3rem)));
+}
+
+.nav {
+  width: min(var(--max-width), calc(100% - clamp(1rem, 2.2vw, 3rem)));
+}
+
+.section-heading > p,
+.hero-lede,
+.deployment-note,
+.site-footer p {
+  max-width: var(--reader-width);
+}
+
+#science-lab.section-shell {
+  width: min(1880px, calc(100% - clamp(0.75rem, 1.6vw, 2rem)));
+}
+
+#science-lab .section-heading p {
+  max-width: 1120px;
+}
+
+.lab-layout {
+  grid-template-columns: 1fr;
+  gap: clamp(1rem, 2vw, 1.8rem);
+}
+
+.lab-summary-card {
+  position: static;
+}
+
+.lab-summary-card h3 {
+  font-size: clamp(1.65rem, 2.6vw, 2.45rem);
+}
+
+.derived-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.visual-grid {
+  grid-template-columns: 1fr;
+  gap: clamp(1.1rem, 2.1vw, 2rem);
+}
+
+.visual-card {
+  padding: clamp(0.85rem, 1.4vw, 1.35rem);
+  min-height: 0;
+}
+
+.visual-card .chart-heading {
+  margin-bottom: clamp(0.8rem, 1.2vw, 1.15rem);
+}
+
+.visual-card .chart-heading h3 {
+  font-size: clamp(1.35rem, 2.4vw, 2.15rem);
+}
+
+.visual-card .chart-heading span {
+  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+}
+
+.lab-graphic {
+  min-height: 0;
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.python-figure {
+  display: block;
+  min-height: 0;
+  height: auto;
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.plot-link {
+  display: block;
+  line-height: 0;
+  background: var(--paper-soft);
+}
+
+.python-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  object-fit: initial;
+}
+
+.python-figure figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.65rem 0.8rem;
+  font-size: clamp(0.8rem, 0.95vw, 0.95rem);
+}
+
+.python-figure figcaption a {
+  color: var(--blue);
+  font-weight: 800;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+/* Dashboard figures also get more room, but remain compact enough for browsing. */
+.dashboard-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 540px), 1fr));
+  gap: clamp(1rem, 1.7vw, 1.5rem);
+}
+
+.chart-card.wide-card {
+  grid-column: auto;
+}
+
+.svg-chart,
+.timeline-chart {
+  min-height: clamp(340px, 34vw, 560px);
+}
+
+.python-figure-global img {
+  width: 100%;
+}
+
+@media (min-width: 1600px) {
+  .visual-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .visual-grid,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lab-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  #science-lab.section-shell,
+  .section-shell,
+  .nav {
+    width: calc(100% - 0.75rem);
+  }
+
+  .section-panel {
+    padding: 0.75rem;
+  }
+
+  .visual-card,
+  .chart-card {
+    padding: 0.75rem;
+  }
+
+  .visual-card .chart-heading {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .python-figure figcaption {
+    display: grid;
+    justify-content: start;
+  }
+
+  .lab-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Final figure sizing: each Science Lab plot uses a full row for maximum readability. */
+#science-lab .visual-grid {
+  grid-template-columns: 1fr !important;
+}
+
+#science-lab .visual-card {
+  width: 100%;
+}
+
+#science-lab .python-figure img {
+  width: 100%;
+  height: auto;
+}
+
+@media (min-width: 1600px) {
+  #science-lab .visual-grid {
+    grid-template-columns: 1fr !important;
   }
 }

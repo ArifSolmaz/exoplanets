@@ -1,0 +1,110 @@
+{
+  "generated_utc": "2026-05-11T11:16:54+00:00",
+  "generator": "scripts/generate_science_plots.py",
+  "catalog_mode": "seed-deep-science",
+  "target_count": 16,
+  "target_plots": {
+    "TRAPPIST-1 e": {
+      "habitable_zone": "./assets/plots/targets/trappist-1-e/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/trappist-1-e/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/trappist-1-e/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/trappist-1-e/mass_radius_context.svg"
+    },
+    "TRAPPIST-1 f": {
+      "habitable_zone": "./assets/plots/targets/trappist-1-f/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/trappist-1-f/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/trappist-1-f/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/trappist-1-f/mass_radius_context.svg"
+    },
+    "Proxima Centauri b": {
+      "habitable_zone": "./assets/plots/targets/proxima-centauri-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/proxima-centauri-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/proxima-centauri-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/proxima-centauri-b/mass_radius_context.svg"
+    },
+    "Kepler-186 f": {
+      "habitable_zone": "./assets/plots/targets/kepler-186-f/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/kepler-186-f/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/kepler-186-f/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/kepler-186-f/mass_radius_context.svg"
+    },
+    "TOI-700 d": {
+      "habitable_zone": "./assets/plots/targets/toi-700-d/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/toi-700-d/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/toi-700-d/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/toi-700-d/mass_radius_context.svg"
+    },
+    "K2-18 b": {
+      "habitable_zone": "./assets/plots/targets/k2-18-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/k2-18-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/k2-18-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/k2-18-b/mass_radius_context.svg"
+    },
+    "LHS 1140 b": {
+      "habitable_zone": "./assets/plots/targets/lhs-1140-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/lhs-1140-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/lhs-1140-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/lhs-1140-b/mass_radius_context.svg"
+    },
+    "GJ 486 b": {
+      "habitable_zone": "./assets/plots/targets/gj-486-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/gj-486-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/gj-486-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/gj-486-b/mass_radius_context.svg"
+    },
+    "55 Cancri e": {
+      "habitable_zone": "./assets/plots/targets/55-cancri-e/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/55-cancri-e/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/55-cancri-e/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/55-cancri-e/mass_radius_context.svg"
+    },
+    "GJ 1214 b": {
+      "habitable_zone": "./assets/plots/targets/gj-1214-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/gj-1214-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/gj-1214-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/gj-1214-b/mass_radius_context.svg"
+    },
+    "HD 209458 b": {
+      "habitable_zone": "./assets/plots/targets/hd-209458-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/hd-209458-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/hd-209458-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/hd-209458-b/mass_radius_context.svg"
+    },
+    "WASP-39 b": {
+      "habitable_zone": "./assets/plots/targets/wasp-39-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/wasp-39-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/wasp-39-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/wasp-39-b/mass_radius_context.svg"
+    },
+    "WASP-12 b": {
+      "habitable_zone": "./assets/plots/targets/wasp-12-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/wasp-12-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/wasp-12-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/wasp-12-b/mass_radius_context.svg"
+    },
+    "51 Pegasi b": {
+      "habitable_zone": "./assets/plots/targets/51-pegasi-b/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/51-pegasi-b/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/51-pegasi-b/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/51-pegasi-b/mass_radius_context.svg"
+    },
+    "TRAPPIST-1 h": {
+      "habitable_zone": "./assets/plots/targets/trappist-1-h/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/trappist-1-h/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/trappist-1-h/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/trappist-1-h/mass_radius_context.svg"
+    },
+    "TRAPPIST-1 g": {
+      "habitable_zone": "./assets/plots/targets/trappist-1-g/habitable_zone.svg",
+      "transit_light_curve": "./assets/plots/targets/trappist-1-g/transit_light_curve.svg",
+      "radial_velocity": "./assets/plots/targets/trappist-1-g/radial_velocity.svg",
+      "mass_radius_context": "./assets/plots/targets/trappist-1-g/mass_radius_context.svg"
+    }
+  },
+  "global_plots": {
+    "radius_flux": "./assets/plots/global/radius_flux_map.svg",
+    "mass_radius": "./assets/plots/global/mass_radius_population.svg",
+    "timeline": "./assets/plots/global/discovery_timeline.svg",
+    "methods": "./assets/plots/global/method_distribution.svg"
+  }
+}

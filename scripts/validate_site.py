@@ -33,15 +33,36 @@ def check_javascript() -> None:
 
 
 def check_python() -> None:
-    fetcher = ROOT / "scripts" / "fetch_exoplanets.py"
-    subprocess.run([sys.executable, "-m", "py_compile", str(fetcher)], check=True)
+    for script_name in ["fetch_exoplanets.py", "generate_science_plots.py"]:
+        script = ROOT / "scripts" / script_name
+        subprocess.run([sys.executable, "-m", "py_compile", str(script)], check=True)
     print("Python syntax OK")
+
+
+def check_plot_manifest() -> None:
+    manifest_path = ROOT / "assets" / "plots" / "manifest.json"
+    if not manifest_path.exists():
+        raise AssertionError("assets/plots/manifest.json is missing; run scripts/generate_science_plots.py")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    target_plots = manifest.get("target_plots", {})
+    if not target_plots:
+        raise AssertionError("plot manifest contains no target plots")
+    missing = []
+    for plots in target_plots.values():
+        for rel_path in plots.values():
+            local = ROOT / rel_path.replace("./", "", 1)
+            if not local.exists():
+                missing.append(rel_path)
+    if missing:
+        raise AssertionError(f"plot manifest points to missing files: {missing[:5]}")
+    print(f"Plot manifest OK: {len(target_plots)} target plot packs")
 
 
 def main() -> int:
     check_json()
     check_javascript()
     check_python()
+    check_plot_manifest()
     return 0
 
 
