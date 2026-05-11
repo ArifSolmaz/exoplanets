@@ -33,6 +33,8 @@ SOLAR_RADIUS_AU = 0.00465047
 EARTH_RADIUS_AU = 4.26352e-5
 SOLAR_TEFF_K = 5778.0
 ZERO_ALBEDO_EARTH_TEMP_K = 278.5
+KOPPARAPU_TEFF_MIN_K = 2600.0
+KOPPARAPU_TEFF_MAX_K = 7200.0
 
 PAPER = "#fffaf0"
 PAPER_SOFT = "#f7f0df"
@@ -159,12 +161,22 @@ def normalize_planet(row: dict[str, Any]) -> Planet | None:
         return None
 
     st_lum_log = first_number(row, "stellar_luminosity_log_solar", "st_lum")
-    luminosity = first_number(row, "stellar_luminosity_solar", "luminosity_solar")
-    if luminosity is None and st_lum_log is not None:
-        luminosity = 10**st_lum_log
+    raw_luminosity = first_number(row, "stellar_luminosity_solar", "luminosity_solar")
+
+    # NASA's st_lum field is log10(L/Lsun). Older local snapshots or hand-edited
+    # data can accidentally place that logarithmic value in stellar_luminosity_solar.
+    # Linear stellar luminosity cannot be zero or negative, so treat non-positive
+    # values as missing unless they can be interpreted as a plausible log value.
+    luminosity = raw_luminosity
+    if not positive(luminosity):
+        log_candidate = st_lum_log if st_lum_log is not None else raw_luminosity
+        if log_candidate is not None and -10.0 <= log_candidate <= 10.0:
+            luminosity = 10**log_candidate
+        else:
+            luminosity = None
 
     stellar_temp = first_number(row, "stellar_temp_k", "st_teff")
-    if luminosity is None:
+    if not positive(luminosity):
         luminosity = luminosity_from_temperature(stellar_temp)
 
     stellar_radius = first_number(row, "stellar_radius_solar", "st_rad")
@@ -221,24 +233,47 @@ def slugify(value: str) -> str:
     return slug or "planet"
 
 
-def seff(limit_key: str, stellar_temp_k: float | None) -> float:
+def seff(limit_key: str, stellar_temp_k: float | None) -> float | None:
     _, coeffs = HZ_LIMITS[limit_key]
     teff = stellar_temp_k if positive(stellar_temp_k) else 5780.0
     tstar = teff - 5780.0
     s0, a, b, c, d = coeffs
-    return s0 + a * tstar + b * tstar**2 + c * tstar**3 + d * tstar**4
+    value = s0 + a * tstar + b * tstar**2 + c * tstar**3 + d * tstar**4
+    if not math.isfinite(value) or value <= 0:
+        return None
+    return value
 
 
 def hz_distances(planet: Planet) -> dict[str, float] | None:
     if not positive(planet.stellar_luminosity_solar):
         return None
     lum = planet.stellar_luminosity_solar
-    return {
-        "optimistic_inner": math.sqrt(lum / seff("recent_venus", planet.stellar_temp_k)),
-        "conservative_inner": math.sqrt(lum / seff("runaway_greenhouse", planet.stellar_temp_k)),
-        "conservative_outer": math.sqrt(lum / seff("maximum_greenhouse", planet.stellar_temp_k)),
-        "optimistic_outer": math.sqrt(lum / seff("early_mars", planet.stellar_temp_k)),
+    fluxes = {
+        "recent_venus": seff("recent_venus", planet.stellar_temp_k),
+        "runaway_greenhouse": seff("runaway_greenhouse", planet.stellar_temp_k),
+        "maximum_greenhouse": seff("maximum_greenhouse", planet.stellar_temp_k),
+        "early_mars": seff("early_mars", planet.stellar_temp_k),
     }
+    if any(not positive(value) for value in fluxes.values()):
+        return None
+
+    distances = {
+        "optimistic_inner": math.sqrt(lum / fluxes["recent_venus"]),
+        "conservative_inner": math.sqrt(lum / fluxes["runaway_greenhouse"]),
+        "conservative_outer": math.sqrt(lum / fluxes["maximum_greenhouse"]),
+        "optimistic_outer": math.sqrt(lum / fluxes["early_mars"]),
+    }
+    ordered = [
+        distances["optimistic_inner"],
+        distances["conservative_inner"],
+        distances["conservative_outer"],
+        distances["optimistic_outer"],
+    ]
+    if any(not positive(value) for value in ordered):
+        return None
+    if any(left >= right for left, right in zip(ordered, ordered[1:])):
+        return None
+    return distances
 
 
 def transit_depth_ppm(planet: Planet) -> float | None:

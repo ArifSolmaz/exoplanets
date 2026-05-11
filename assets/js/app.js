@@ -166,7 +166,14 @@ function normalizePlanet(raw) {
   const year = firstNumber(raw.discovery_year, raw.disc_year);
   const stellarTemp = firstNumber(raw.stellar_temp_k, raw.st_teff);
   const stLumLog = firstNumber(raw.stellar_luminosity_log_solar, raw.st_lum);
-  const luminosity = firstNumber(raw.stellar_luminosity_solar, raw.luminosity_solar);
+  const rawLuminosity = firstNumber(raw.stellar_luminosity_solar, raw.luminosity_solar);
+  let luminosity = rawLuminosity;
+  if (!isPositive(luminosity)) {
+    const logCandidate = stLumLog ?? rawLuminosity;
+    luminosity = Number.isFinite(logCandidate) && logCandidate >= -10 && logCandidate <= 10
+      ? 10 ** logCandidate
+      : null;
+  }
   const semiMajor = firstNumber(raw.semi_major_axis_au, raw.pl_orbsmax);
 
   return {
@@ -182,7 +189,7 @@ function normalizePlanet(raw) {
     stellar_temp_k: stellarTemp,
     stellar_radius_solar: firstNumber(raw.stellar_radius_solar, raw.st_rad),
     stellar_mass_solar: firstNumber(raw.stellar_mass_solar, raw.st_mass),
-    stellar_luminosity_solar: luminosity ?? (stLumLog === null ? null : 10 ** stLumLog),
+    stellar_luminosity_solar: isPositive(luminosity) ? luminosity : null,
     stellar_luminosity_log_solar: stLumLog,
     equilibrium_temp_k: firstNumber(raw.equilibrium_temp_k, raw.pl_eqt),
     semi_major_axis_au: semiMajor,
@@ -243,7 +250,8 @@ function seffForLimit(limitKey, stellarTemp) {
   const teff = isPositive(stellarTemp) ? stellarTemp : 5780;
   const tStar = teff - 5780;
   const [s0, a, b, c, d] = limit.coeff;
-  return s0 + a * tStar + b * tStar ** 2 + c * tStar ** 3 + d * tStar ** 4;
+  const value = s0 + a * tStar + b * tStar ** 2 + c * tStar ** 3 + d * tStar ** 4;
+  return Number.isFinite(value) && value > 0 ? value : null;
 }
 
 function computeHabitableZone(luminosity, stellarTemp, semiMajor) {
@@ -264,12 +272,38 @@ function computeHabitableZone(luminosity, stellarTemp, semiMajor) {
     earlyMars: seffForLimit('earlyMars', stellarTemp),
   };
 
+  if (!Object.values(fluxes).every(isPositive)) {
+    return {
+      category: 'unknown',
+      label: 'Habitable-zone model unavailable',
+      className: 'unknown',
+      fluxes,
+      distances: null,
+      calibrated,
+      caveat: 'The Kopparapu polynomial returned invalid flux limits for this stellar temperature.',
+    };
+  }
+
   const distances = {
     optimisticInner: Math.sqrt(luminosity / fluxes.recentVenus),
     conservativeInner: Math.sqrt(luminosity / fluxes.runawayGreenhouse),
     conservativeOuter: Math.sqrt(luminosity / fluxes.maximumGreenhouse),
     optimisticOuter: Math.sqrt(luminosity / fluxes.earlyMars),
   };
+
+  const orderedDistances = [distances.optimisticInner, distances.conservativeInner, distances.conservativeOuter, distances.optimisticOuter];
+  const ordered = orderedDistances.every(isPositive) && orderedDistances.every((value, index, array) => index === 0 || array[index - 1] < value);
+  if (!ordered) {
+    return {
+      category: 'unknown',
+      label: 'Habitable-zone model unavailable',
+      className: 'unknown',
+      fluxes,
+      distances: null,
+      calibrated,
+      caveat: 'The habitable-zone boundaries were not physically ordered for this target.',
+    };
+  }
 
   if (!isPositive(semiMajor)) {
     return {

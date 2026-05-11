@@ -2,13 +2,14 @@
 
 A static GitHub Pages exoplanet physics notebook for `https://arifsolmaz.github.io/exoplanets/`.
 
-This version keeps the quieter observatory-notebook design, replaces the weak hand-drawn browser plots with Python-generated scientific SVG figures, and gives the science lab a wide responsive layout so the plots are readable on real browser screens. The site still works as plain static HTML/CSS/JavaScript, while `scripts/generate_science_plots.py` uses NumPy, pandas, and Matplotlib to render the observing diagnostics during local refresh or GitHub Actions deployment.
+This version keeps the quieter observatory-notebook design, replaces the weak hand-drawn browser plots with Python-generated scientific SVG figures, and gives the science lab a wide responsive layout so the plots are readable on real browser screens. The site still works as plain static HTML/CSS/JavaScript. It uses MathJax for textbook-style equation rendering, while `scripts/generate_science_plots.py` uses NumPy, pandas, and Matplotlib to render the observing diagnostics during local refresh or GitHub Actions deployment.
 
 ## Main features
 
 - Static GitHub Pages deployment; no frontend build system required.
 - Python/Matplotlib plot generation for target diagnostics and population figures.
 - Full-width responsive science figures with full-size SVG links for inspection.
+- Textbook-style MathJax equation chapter with symbols, units, and modeling assumptions.
 - Browser-side science notebook with adjustable Bond albedo and atmospheric mean molecular weight.
 - Kopparapu-style habitable-zone limits using published polynomial coefficients.
 - Limb-darkened transit geometry figures for selected targets.
@@ -123,6 +124,10 @@ Settings → Pages → Build and deployment → Source → GitHub Actions
 ```
 
 The included deploy workflow installs the plotting dependencies, regenerates the figures, and deploys the static site. The refresh workflow fetches NASA data, regenerates figures, commits changed data/plots, and deploys.
+
+## Equation rendering
+
+The equations section is rendered with MathJax from a CDN. On GitHub Pages this gives TeX-style display math without a frontend build step. If you need a fully offline copy, replace the CDN script in `index.html` with a vendored MathJax build or pre-rendered SVG equation assets.
 
 ## Scientific model notes
 

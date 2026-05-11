@@ -18,6 +18,22 @@
     <meta property="og:url" content="https://arifsolmaz.github.io/exoplanets/" />
     <meta name="theme-color" content="#f3efe4" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <script>
+      window.MathJax = {
+        tex: {
+          tags: 'ams',
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']]
+        },
+        svg: {
+          fontCache: 'global'
+        },
+        startup: {
+          typeset: true
+        }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
   <body>
@@ -330,45 +346,234 @@
         <div id="labCaveats" class="caveat-box"></div>
       </section>
 
-      <section id="equations" class="section-shell section-panel" aria-labelledby="equationsTitle">
-        <div class="section-heading">
-          <p class="eyebrow">Explainable astronomy</p>
-          <h2 id="equationsTitle">The equations behind the interface</h2>
-          <p>
-            The site intentionally exposes the model assumptions. It is meant for public science,
-            target triage, and learning—not publication-grade inference.
-          </p>
+      <section id="equations" class="section-shell section-panel equation-section" aria-labelledby="equationsTitle">
+        <div class="section-heading two-column-heading equation-heading">
+          <div>
+            <p class="eyebrow">Explainable astronomy</p>
+            <h2 id="equationsTitle">A compact exoplanet physics chapter</h2>
+            <p>
+              The interface now treats the model layer like a textbook page: display equations,
+              symbols, units, and assumptions are separated from the prose. These are simplified
+              observing equations for public science and target triage, not a replacement for a
+              full retrieval or orbital fit.
+            </p>
+          </div>
+          <div class="equation-legend" aria-label="Equation notation legend">
+            <span><strong>★</strong> stellar quantity</span>
+            <span><strong>p</strong> planetary quantity</span>
+            <span><strong>⊕</strong> Earth-normalized unit</span>
+            <span><strong>☉</strong> solar-normalized unit</span>
+          </div>
         </div>
-        <div class="equation-grid">
-          <article>
-            <h3>Incident flux</h3>
-            <p class="formula">S = L★ / a²</p>
-            <p>Flux is measured in Earth units when luminosity is in solar units and semi-major axis is in AU.</p>
+
+        <div class="equation-book">
+          <article class="equation-entry">
+            <div class="equation-title-row">
+              <span class="equation-index">01</span>
+              <div>
+                <h3>Incident stellar flux</h3>
+                <p>How strongly the planet is irradiated relative to Earth.</p>
+              </div>
+            </div>
+            <div class="equation-display" aria-label="Incident flux equation">
+              \[
+                S_p = \frac{L_\star / L_\odot}{\left(a / \mathrm{AU}\right)^2} \tag{1}
+              \]
+            </div>
+            <div class="equation-body">
+              <p>
+                A planet with \(S_p = 1\) receives the same bolometric flux Earth receives from the Sun.
+                This is the quantity used for the radius-flux population map and for a first-order climate triage.
+              </p>
+              <dl class="symbol-list">
+                <div><dt>\(L_\star\)</dt><dd>stellar luminosity</dd></div>
+                <div><dt>\(a\)</dt><dd>semi-major axis</dd></div>
+                <div><dt>\(S_p\)</dt><dd>planet incident flux in Earth units</dd></div>
+              </dl>
+            </div>
           </article>
-          <article>
-            <h3>Habitable-zone limits</h3>
-            <p class="formula">S<sub>eff</sub> = S<sub>☉</sub> + aT★ + bT★² + cT★³ + dT★⁴</p>
-            <p>For Kopparapu-style limits, <code>T★ = T_eff − 5780 K</code> and distance is <code>√(L★/S_eff)</code>.</p>
+
+          <article class="equation-entry">
+            <div class="equation-title-row">
+              <span class="equation-index">02</span>
+              <div>
+                <h3>Equilibrium temperature</h3>
+                <p>A zero-dimensional temperature estimate controlled by albedo.</p>
+              </div>
+            </div>
+            <div class="equation-display" aria-label="Equilibrium temperature equation">
+              \[
+                T_{\mathrm{eq}} = T_{\mathrm{eff}}\left(\frac{R_\star}{2a}\right)^{1/2}
+                \left(1-A_B\right)^{1/4} \tag{2}
+              \]
+            </div>
+            <div class="equation-body">
+              <p>
+                The albedo slider changes \(A_B\). The expression assumes global heat redistribution and no greenhouse correction,
+                so it is a diagnostic temperature rather than a climate model.
+              </p>
+              <dl class="symbol-list">
+                <div><dt>\(T_{\mathrm{eff}}\)</dt><dd>stellar effective temperature</dd></div>
+                <div><dt>\(R_\star\)</dt><dd>stellar radius</dd></div>
+                <div><dt>\(A_B\)</dt><dd>Bond albedo</dd></div>
+              </dl>
+            </div>
           </article>
-          <article>
-            <h3>Transit depth</h3>
-            <p class="formula">δ ≈ (Rp / R★)²</p>
-            <p>The Python figure uses a simple limb-darkened geometric model. The browser fallback keeps the simpler depth approximation.</p>
+
+          <article class="equation-entry wide-equation">
+            <div class="equation-title-row">
+              <span class="equation-index">03</span>
+              <div>
+                <h3>Kopparapu-style habitable-zone boundaries</h3>
+                <p>Climate boundaries expressed as stellar-flux limits and then converted to orbital distance.</p>
+              </div>
+            </div>
+            <div class="equation-pair">
+              <div class="equation-display" aria-label="Habitable zone flux polynomial">
+                \[
+                  S_{\mathrm{eff}} = S_{\mathrm{eff},\odot} + aT'_\star + bT_\star'^2 + cT_\star'^3 + dT_\star'^4 \tag{3a}
+                \]
+              </div>
+              <div class="equation-display" aria-label="Habitable zone distance equation">
+                \[
+                  d_{\mathrm{HZ}} = \left(\frac{L_\star / L_\odot}{S_{\mathrm{eff}}}\right)^{1/2}\,\mathrm{AU},
+                  \qquad T'_\star = T_{\mathrm{eff}} - 5780\,\mathrm{K} \tag{3b}
+                \]
+              </div>
+            </div>
+            <div class="equation-body split-notes">
+              <p>
+                The site uses inner and outer flux limits to classify a planet as inside, hotward of, or coldward of
+                the optimistic and conservative habitable-zone bands.
+              </p>
+              <p>
+                The plotted HZ panel shows the orbit against those boundaries; it does not imply habitability without atmosphere,
+                geophysics, stellar activity, and composition constraints.
+              </p>
+            </div>
           </article>
-          <article>
-            <h3>Radial velocity</h3>
-            <p class="formula">K ≈ 0.0895 Mp P<sup>−1/3</sup> M★<sup>−2/3</sup> / √(1−e²)</p>
-            <p>The implementation assumes edge-on geometry unless inclination is known.</p>
+
+          <article class="equation-entry">
+            <div class="equation-title-row">
+              <span class="equation-index">04</span>
+              <div>
+                <h3>Transit depth and duration</h3>
+                <p>Photometric observability from the ratio of planetary and stellar radii.</p>
+              </div>
+            </div>
+            <div class="equation-pair stacked">
+              <div class="equation-display" aria-label="Transit depth equation">
+                \[
+                  \delta_0 \simeq k^2, \qquad k = \frac{R_p}{R_\star} \tag{4a}
+                \]
+              </div>
+              <div class="equation-display" aria-label="Transit duration equation">
+                \[
+                  T_{14} \simeq \frac{P}{\pi}\arcsin\!\left[
+                  \frac{R_\star}{a}\frac{\sqrt{(1+k)^2-b^2}}{\sin i}\right] \tag{4b}
+                \]
+              </div>
+            </div>
+            <div class="equation-body">
+              <p>
+                The Python light-curve figure adds a simple limb-darkened shape around this geometric depth.
+                The catalog readout reports depth in parts per million.
+              </p>
+              <dl class="symbol-list">
+                <div><dt>\(k\)</dt><dd>radius ratio</dd></div>
+                <div><dt>\(b\)</dt><dd>impact parameter</dd></div>
+                <div><dt>\(i\)</dt><dd>orbital inclination</dd></div>
+              </dl>
+            </div>
           </article>
-          <article>
-            <h3>Bulk density and gravity</h3>
-            <p class="formula">ρ = ρ⊕ M/R³ · g = g⊕ M/R²</p>
-            <p>Mass and radius together are the first-order clues to rocky, volatile-rich, or giant-planet structure.</p>
+
+          <article class="equation-entry">
+            <div class="equation-title-row">
+              <span class="equation-index">05</span>
+              <div>
+                <h3>Radial-velocity semi-amplitude</h3>
+                <p>The stellar reflex velocity induced by an orbiting planet.</p>
+              </div>
+            </div>
+            <div class="equation-display" aria-label="Radial velocity semi amplitude equation">
+              \[
+                K = \left(\frac{2\pi G}{P}\right)^{1/3}
+                \frac{M_p\sin i}{\left(M_\star + M_p\right)^{2/3}}
+                \frac{1}{\sqrt{1-e^2}} \tag{5}
+              \]
+            </div>
+            <div class="equation-body">
+              <p>
+                When inclination is missing, the app uses an edge-on approximation. The plotted curve is a Keplerian observing
+                model from catalog parameters, not a fit to raw spectra.
+              </p>
+              <p class="unit-equation">
+                Earth-unit shortcut:
+                \(K \approx 0.08945\,\mathrm{m\,s^{-1}}\,(M_p/M_\oplus)(P/\mathrm{yr})^{-1/3}(M_\star/M_\odot)^{-2/3}\sin i/\sqrt{1-e^2}\).
+              </p>
+            </div>
           </article>
-          <article>
-            <h3>Transmission proxy</h3>
-            <p class="formula">Δ ≈ 2 N H Rp / R★²</p>
-            <p>Scale height <code>H = kT/μmHg</code>. This is a rough atmosphere-signal proxy, not a retrieval model.</p>
+
+          <article class="equation-entry">
+            <div class="equation-title-row">
+              <span class="equation-index">06</span>
+              <div>
+                <h3>Bulk density, gravity, and escape velocity</h3>
+                <p>First-order structural diagnostics from mass and radius.</p>
+              </div>
+            </div>
+            <div class="equation-pair stacked">
+              <div class="equation-display" aria-label="Density and gravity equations">
+                \[
+                  \rho_p = \rho_\oplus\frac{M_p/M_\oplus}{(R_p/R_\oplus)^3}, \qquad
+                  g_p = g_\oplus\frac{M_p/M_\oplus}{(R_p/R_\oplus)^2} \tag{6a}
+                \]
+              </div>
+              <div class="equation-display" aria-label="Escape velocity equation">
+                \[
+                  v_{\mathrm{esc},p}=v_{\mathrm{esc},\oplus}
+                  \left(\frac{M_p/M_\oplus}{R_p/R_\oplus}\right)^{1/2} \tag{6b}
+                \]
+              </div>
+            </div>
+            <div class="equation-body">
+              <p>
+                These quantities help separate likely rocky worlds, volatile-rich sub-Neptunes, and gas giants.
+                They are most meaningful when mass and radius are both measured rather than inferred.
+              </p>
+            </div>
+          </article>
+
+          <article class="equation-entry wide-equation">
+            <div class="equation-title-row">
+              <span class="equation-index">07</span>
+              <div>
+                <h3>Transmission-spectroscopy signal proxy</h3>
+                <p>A scale-height estimate for atmosphere follow-up prioritization.</p>
+              </div>
+            </div>
+            <div class="equation-pair">
+              <div class="equation-display" aria-label="Atmospheric scale height equation">
+                \[
+                  H = \frac{k_B T_{\mathrm{eq}}}{\mu m_H g_p} \tag{7a}
+                \]
+              </div>
+              <div class="equation-display" aria-label="Transmission signal equation">
+                \[
+                  \Delta_{\lambda} \sim \frac{2NHR_p}{R_\star^2} \tag{7b}
+                \]
+              </div>
+            </div>
+            <div class="equation-body split-notes">
+              <p>
+                The atmosphere menu changes \(\mu\), the mean molecular weight. The scale-height slider changes \(N\), the number
+                of scale heights assumed to contribute to spectral modulation.
+              </p>
+              <p>
+                This is intentionally a proxy: clouds, hazes, composition, stellar contamination, and instrument systematics
+                can dominate real observations.
+              </p>
+            </div>
           </article>
         </div>
       </section>
