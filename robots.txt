@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://arifsolmaz.github.io/exoplanets/sitemap.xml

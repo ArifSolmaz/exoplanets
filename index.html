@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Exoplanet Explorer | Arif Solmaz</title>
+    <meta
+      name="description"
+      content="A public, data-driven GitHub Pages project for exploring confirmed exoplanets, discovery methods, planetary systems, and NASA Exoplanet Archive data."
+    />
+    <meta name="author" content="Arif Solmaz" />
+    <meta property="og:title" content="Open Exoplanet Explorer" />
+    <meta
+      property="og:description"
+      content="Interactive exoplanet exploration, discovery-method explainers, and reproducible open data workflows."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://arifsolmaz.github.io/exoplanets/" />
+    <meta name="theme-color" content="#07111f" />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <header class="site-header" data-elevated="false">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="./" aria-label="Open Exoplanet Explorer home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Open Exoplanet Explorer</span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navLinks">
+          Menu
+        </button>
+        <div class="nav-links" id="navLinks">
+          <a href="#dashboard">Dashboard</a>
+          <a href="#explorer">Explorer</a>
+          <a href="#methods">Methods</a>
+          <a href="#timeline">Timeline</a>
+          <a href="#data">Data</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero section-shell" aria-labelledby="heroTitle">
+        <div class="hero-copy">
+          <p class="eyebrow">Public science outreach · GitHub Pages · NASA archive workflow</p>
+          <h1 id="heroTitle">Explore worlds beyond the Solar System.</h1>
+          <p class="hero-lede">
+            A static, open-source website for explaining exoplanet exploration, visualizing discovery
+            trends, and turning public archive data into an approachable astronomy experience.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#explorer">Start exploring</a>
+            <a class="button button-secondary" href="#data">View data workflow</a>
+          </div>
+          <p class="deployment-note">
+            Designed for <strong>arifsolmaz.github.io/exoplanets</strong>. All paths are relative, so the
+            project works as a standalone repository or as a folder inside your homepage repo.
+          </p>
+        </div>
+        <div class="orbital-stage" aria-hidden="true">
+          <div class="orbit orbit-one"><span></span></div>
+          <div class="orbit orbit-two"><span></span></div>
+          <div class="orbit orbit-three"><span></span></div>
+          <div class="star-core"></div>
+          <div class="data-chip chip-one">Transit dips</div>
+          <div class="data-chip chip-two">Radial wobble</div>
+          <div class="data-chip chip-three">Direct images</div>
+        </div>
+      </section>
+
+      <section class="status-strip section-shell" aria-live="polite">
+        <div>
+          <span class="status-label">Dataset status</span>
+          <p id="dataStatus">Loading exoplanet dataset…</p>
+        </div>
+        <a class="text-link" href="./data/exoplanets.json">Open JSON data</a>
+      </section>
+
+      <section class="stats-grid section-shell" aria-label="Dataset summary">
+        <article class="stat-card">
+          <span class="stat-label">Planets loaded</span>
+          <strong id="statPlanets">—</strong>
+          <span id="statPlanetsNote">confirmed and featured records</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Discovery methods</span>
+          <strong id="statMethods">—</strong>
+          <span>represented in the dataset</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Rocky-size worlds</span>
+          <strong id="statRocky">—</strong>
+          <span>≤ 2 Earth radii where radius is known</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Latest discovery year</span>
+          <strong id="statLatest">—</strong>
+          <span id="statDistance">median distance unavailable</span>
+        </article>
+      </section>
+
+      <section id="dashboard" class="section-shell section-panel" aria-labelledby="dashboardTitle">
+        <div class="section-heading">
+          <p class="eyebrow">At a glance</p>
+          <h2 id="dashboardTitle">Discovery patterns in the loaded catalog</h2>
+          <p>
+            The visualizations update automatically when the NASA data refresh script generates a larger
+            catalog file.
+          </p>
+        </div>
+        <div class="dashboard-grid">
+          <article class="chart-card">
+            <div class="chart-heading">
+              <h3>Discovery methods</h3>
+              <span id="methodChartNote">—</span>
+            </div>
+            <div id="methodChart" class="bar-chart" role="img" aria-label="Bar chart of discovery methods"></div>
+          </article>
+          <article class="chart-card">
+            <div class="chart-heading">
+              <h3>Discovery timeline</h3>
+              <span>by year</span>
+            </div>
+            <div id="timelineChart" class="timeline-chart" role="img" aria-label="Timeline chart of discovery years"></div>
+          </article>
+          <article class="chart-card">
+            <div class="chart-heading">
+              <h3>Planet size classes</h3>
+              <span>Earth radii</span>
+            </div>
+            <div id="sizeChart" class="bar-chart" role="img" aria-label="Bar chart of planet size classes"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="explorer" class="section-shell section-panel" aria-labelledby="explorerTitle">
+        <div class="section-heading two-column-heading">
+          <div>
+            <p class="eyebrow">Interactive catalog</p>
+            <h2 id="explorerTitle">Search, filter, and compare exoplanets</h2>
+            <p>
+              Start with the curated seed dataset, then run the updater to replace it with NASA Exoplanet
+              Archive records.
+            </p>
+          </div>
+          <button class="button button-secondary" type="button" id="resetFilters">Reset filters</button>
+        </div>
+
+        <form class="filters" id="filters" aria-label="Exoplanet filters">
+          <label>
+            <span>Search planet or host</span>
+            <input id="searchInput" type="search" placeholder="TRAPPIST, Kepler, Proxima…" autocomplete="off" />
+          </label>
+          <label>
+            <span>Discovery method</span>
+            <select id="methodFilter">
+              <option value="all">All methods</option>
+            </select>
+          </label>
+          <label>
+            <span>Size class</span>
+            <select id="sizeFilter">
+              <option value="all">All sizes</option>
+              <option value="Terrestrial">Terrestrial</option>
+              <option value="Super-Earth">Super-Earth</option>
+              <option value="Sub-Neptune">Sub-Neptune</option>
+              <option value="Giant">Giant</option>
+              <option value="Super-Jupiter">Super-Jupiter</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </label>
+          <label>
+            <span>Discovery era</span>
+            <select id="eraFilter">
+              <option value="all">All years</option>
+              <option value="early">Before 2010</option>
+              <option value="kepler">2010–2018</option>
+              <option value="recent">2019 onward</option>
+            </select>
+          </label>
+          <label>
+            <span>Sort by</span>
+            <select id="sortSelect">
+              <option value="name-asc">Planet name</option>
+              <option value="year-desc">Newest discoveries</option>
+              <option value="distance-asc">Nearest systems</option>
+              <option value="radius-asc">Smallest known radius</option>
+              <option value="period-asc">Shortest orbit</option>
+            </select>
+          </label>
+        </form>
+
+        <div class="explorer-layout">
+          <div class="results-column">
+            <div class="results-header">
+              <p id="resultCount">Loading records…</p>
+              <p class="muted">Click a card for details.</p>
+            </div>
+            <div id="planetList" class="planet-grid" aria-live="polite"></div>
+            <button class="button button-secondary load-more" type="button" id="loadMore">Load more</button>
+          </div>
+
+          <aside class="detail-panel" aria-labelledby="detailTitle">
+            <p class="eyebrow">Selected planet</p>
+            <h3 id="detailTitle">No planet selected</h3>
+            <p id="detailSubtitle" class="muted">Choose a planet card to view physical and orbital properties.</p>
+            <dl class="detail-list" id="detailList"></dl>
+            <p id="detailDescription" class="detail-description"></p>
+          </aside>
+        </div>
+      </section>
+
+      <section id="methods" class="section-shell section-panel" aria-labelledby="methodsTitle">
+        <div class="section-heading">
+          <p class="eyebrow">How exoplanets are detected</p>
+          <h2 id="methodsTitle">Discovery methods explained without hand-waving</h2>
+          <p>
+            Exoplanet science often infers planets from how they affect the light or motion of their host
+            stars. The site’s method filters connect those observing techniques to real planets.
+          </p>
+        </div>
+        <div class="method-grid">
+          <article>
+            <span class="method-icon">☌</span>
+            <h3>Transit</h3>
+            <p>
+              A planet crosses in front of its star and blocks a small fraction of starlight. Repeated dips
+              reveal orbital period; dip depth helps estimate radius.
+            </p>
+          </article>
+          <article>
+            <span class="method-icon">↔</span>
+            <h3>Radial velocity</h3>
+            <p>
+              A planet’s gravity makes its host star wobble. Doppler shifts in the stellar spectrum reveal a
+              minimum planet mass and orbital period.
+            </p>
+          </article>
+          <article>
+            <span class="method-icon">◉</span>
+            <h3>Direct imaging</h3>
+            <p>
+              Telescopes suppress the host star’s glare and capture light from young, hot, wide-orbit giant
+              planets directly.
+            </p>
+          </article>
+          <article>
+            <span class="method-icon">⌁</span>
+            <h3>Microlensing</h3>
+            <p>
+              Gravity from a foreground star-planet system briefly magnifies background starlight, creating a
+              telltale lensing signal.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="timeline" class="section-shell section-panel" aria-labelledby="timelineTitle">
+        <div class="section-heading">
+          <p class="eyebrow">Exploration milestones</p>
+          <h2 id="timelineTitle">A compact exoplanet exploration timeline</h2>
+        </div>
+        <ol class="timeline-list">
+          <li>
+            <time datetime="1995">1995</time>
+            <div>
+              <h3>First planet around a Sun-like star</h3>
+              <p>51 Pegasi b established hot Jupiters as a major class of close-orbiting giant planets.</p>
+            </div>
+          </li>
+          <li>
+            <time datetime="2009">2009</time>
+            <div>
+              <h3>Kepler changes the scale of the field</h3>
+              <p>The Kepler mission made transits the dominant engine of exoplanet population statistics.</p>
+            </div>
+          </li>
+          <li>
+            <time datetime="2016">2016</time>
+            <div>
+              <h3>Nearby small-world discoveries accelerate</h3>
+              <p>Proxima Centauri b and the TRAPPIST-1 system focused attention on nearby M-dwarf systems.</p>
+            </div>
+          </li>
+          <li>
+            <time datetime="2018">2018</time>
+            <div>
+              <h3>TESS begins an all-sky search</h3>
+              <p>TESS prioritizes bright, nearby stars, producing targets well suited for follow-up studies.</p>
+            </div>
+          </li>
+          <li>
+            <time datetime="2020s">2020s</time>
+            <div>
+              <h3>Atmospheres become a public focal point</h3>
+              <p>Space telescopes and high-resolution ground instruments increasingly probe exoplanet atmospheres.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="data" class="section-shell section-panel" aria-labelledby="dataTitle">
+        <div class="section-heading two-column-heading">
+          <div>
+            <p class="eyebrow">Open data workflow</p>
+            <h2 id="dataTitle">Built for reproducible public publishing</h2>
+            <p>
+              The repository includes a Python script that queries the NASA Exoplanet Archive TAP service,
+              normalizes selected fields, and writes the static JSON file consumed by this page.
+            </p>
+          </div>
+          <a class="button button-primary" href="https://github.com/arifsolmaz/exoplanets">View repository</a>
+        </div>
+        <div class="data-grid">
+          <article>
+            <h3>1. Static site</h3>
+            <p>
+              No build step is required. The browser loads <code>index.html</code>, <code>styles.css</code>,
+              <code>app.js</code>, and <code>data/exoplanets.json</code>.
+            </p>
+          </article>
+          <article>
+            <h3>2. Data refresh</h3>
+            <p>
+              Run <code>python scripts/fetch_exoplanets.py</code> locally or trigger the included GitHub
+              Actions workflow to update the JSON catalog.
+            </p>
+          </article>
+          <article>
+            <h3>3. Public deployment</h3>
+            <p>
+              Deploy from the repository root or use the included Pages workflow. The project is ready for
+              <code>https://arifsolmaz.github.io/exoplanets/</code>.
+            </p>
+          </article>
+        </div>
+        <div class="resource-list" aria-label="External resources">
+          <a href="https://exoplanetarchive.ipac.caltech.edu/">NASA Exoplanet Archive</a>
+          <a href="https://science.nasa.gov/exoplanets/">NASA Exoplanets</a>
+          <a href="https://science.nasa.gov/citizen-science/exoplanet-watch/">Exoplanet Watch</a>
+          <a href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess">Planet Hunters TESS</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer section-shell">
+      <p>
+        Built by Arif Solmaz as an open, public GitHub Pages project. Data can be refreshed from the NASA
+        Exoplanet Archive; seed values are provided so the site works immediately after cloning.
+      </p>
+    </footer>
+
+    <script type="module" src="./assets/js/app.js"></script>
+  </body>
+</html>

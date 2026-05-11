@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Fetch and normalize confirmed exoplanets from NASA Exoplanet Archive TAP.
+
+The generated JSON file is intentionally static so it can be served directly by
+GitHub Pages. The query uses the Planetary Systems Composite Parameters table
+(`pscomppars`), which provides one row per planet and is well suited for broad
+population visualizations.
+
+Usage:
+  python scripts/fetch_exoplanets.py
+  python scripts/fetch_exoplanets.py --limit 500 --out data/exoplanets.json
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import math
+import pathlib
+import sys
+import urllib.parse
+import urllib.request
+from typing import Any
+
+TAP_SYNC_ENDPOINT = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync"
+DEFAULT_OUTPUT = pathlib.Path("data/exoplanets.json")
+
+FIELDS = [
+    "pl_name",
+    "hostname",
+    "discoverymethod",
+    "disc_year",
+    "disc_facility",
+    "pl_rade",
+    "pl_bmasse",
+    "pl_orbper",
+    "sy_dist",
+    "st_teff",
+    "st_spectype",
+    "pl_eqt",
+    "pl_orbsmax",
+]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Fetch NASA Exoplanet Archive data for the static site.")
+    parser.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUTPUT, help="Output JSON path.")
+    parser.add_argument("--limit", type=int, default=None, help="Optional SELECT TOP limit for testing.")
+    parser.add_argument("--timeout", type=int, default=120, help="HTTP timeout in seconds.")
+    return parser.parse_args()
+
+
+def build_query(limit: int | None = None) -> str:
+    top_clause = f"top {limit} " if limit else ""
+    fields = ", ".join(FIELDS)
+    return (
+        f"select {top_clause}{fields} "
+        "from pscomppars "
+        "where pl_name is not null "
+        "order by pl_name asc"
+    )
+
+
+def build_url(query: str) -> str:
+    return f"{TAP_SYNC_ENDPOINT}?{urllib.parse.urlencode({'query': query, 'format': 'json'})}"
+
+
+def fetch_json(url: str, timeout: int) -> list[dict[str, Any]]:
+    request = urllib.request.Request(url, headers={"User-Agent": "open-exoplanet-explorer/1.0"})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        if response.status != 200:
+            raise RuntimeError(f"NASA TAP request failed with HTTP {response.status}")
+        payload = json.loads(response.read().decode("utf-8"))
+    if not isinstance(payload, list):
+        raise TypeError("Expected NASA TAP JSON response to be a list of records.")
+    return payload
+
+
+def number_or_none(value: Any, digits: int = 6) -> float | int | None:
+    if value in (None, "", "NaN", "nan"):
+        return None
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(numeric):
+        return None
+    rounded = round(numeric, digits)
+    if rounded.is_integer():
+        return int(rounded)
+    return rounded
+
+
+def text_or_unknown(value: Any, fallback: str = "Unknown") -> str:
+    if value is None:
+        return fallback
+    text = str(value).strip()
+    return text or fallback
+
+
+def normalize_record(record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "name": text_or_unknown(record.get("pl_name"), ""),
+        "host": text_or_unknown(record.get("hostname")),
+        "method": text_or_unknown(record.get("discoverymethod")),
+        "discovery_year": number_or_none(record.get("disc_year"), digits=0),
+        "facility": text_or_unknown(record.get("disc_facility")),
+        "radius_earth": number_or_none(record.get("pl_rade")),
+        "mass_earth": number_or_none(record.get("pl_bmasse")),
+        "orbital_period_days": number_or_none(record.get("pl_orbper")),
+        "distance_pc": number_or_none(record.get("sy_dist")),
+        "stellar_temp_k": number_or_none(record.get("st_teff")),
+        "spectral_type": text_or_unknown(record.get("st_spectype")),
+        "equilibrium_temp_k": number_or_none(record.get("pl_eqt")),
+        "semi_major_axis_au": number_or_none(record.get("pl_orbsmax")),
+        "tag": "Archive record",
+        "description": "",
+    }
+
+
+def main() -> int:
+    args = parse_args()
+    query = build_query(args.limit)
+    url = build_url(query)
+
+    print("Fetching NASA Exoplanet Archive TAP data...", file=sys.stderr)
+    print(query, file=sys.stderr)
+    records = fetch_json(url, timeout=args.timeout)
+    planets = [normalize_record(record) for record in records]
+    planets = [planet for planet in planets if planet["name"]]
+
+    payload = {
+        "meta": {
+            "mode": "nasa-tap",
+            "source": "NASA Exoplanet Archive TAP service",
+            "source_table": "pscomppars",
+            "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            "record_count": len(planets),
+            "query": query,
+            "tap_sync_endpoint": TAP_SYNC_ENDPOINT,
+            "notes": "Generated by scripts/fetch_exoplanets.py for static GitHub Pages publishing.",
+        },
+        "planets": planets,
+    }
+
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"Wrote {len(planets)} records to {args.out}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
