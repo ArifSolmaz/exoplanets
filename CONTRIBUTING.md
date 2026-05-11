@@ -1,11 +1,14 @@
 # Contributing
 
-Suggested improvements are welcome:
+Contributions are welcome, especially improvements that make the science clearer, more transparent, or more reproducible.
 
-- Add clearer exoplanet explanations.
-- Improve accessibility and keyboard navigation.
-- Add analysis notebooks or exported charts.
-- Improve the data-fetching script with additional archive fields.
-- Add tests for frontend data normalization.
+Useful contribution areas:
 
-For data changes, prefer editing the NASA TAP query in `scripts/fetch_exoplanets.py` rather than manually maintaining a large generated JSON file.
+- Better source-linked explanations of exoplanet observables.
+- Additional browser-side visualizations that stay static-site friendly.
+- Improved handling of missing archive fields and uncertainty propagation.
+- More careful mass-radius/composition guide curves.
+- Accessibility improvements for charts and science-lab controls.
+- More curated seed records with well-sourced stellar and orbital parameters.
+
+Please keep the project deployable as plain GitHub Pages: no mandatory frontend build step, no private API keys, and no secrets in the repository.

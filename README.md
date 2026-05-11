@@ -1,55 +1,47 @@
-# Open Exoplanet Explorer
+# Open Exoplanet Explorer — Observatory Notebook
 
-A public, static GitHub Pages website for `https://arifsolmaz.github.io/exoplanets/`.
+A static GitHub Pages exoplanet physics notebook for `https://arifsolmaz.github.io/exoplanets/`.
 
-The project explains exoplanet discovery methods, visualizes a planet catalog, and includes a reproducible NASA Exoplanet Archive data-refresh workflow. It has no frontend build step and no required JavaScript framework.
+This version is designed to feel less like a glossy app and more like a calm observatory field notebook. It loads a JSON dataset, then derives interpretable exoplanet quantities in the browser: incident flux, habitable-zone placement, density, surface gravity, escape velocity, transit depth, central-transit duration, radial-velocity semi-amplitude, astrometric wobble, and a transmission-spectroscopy signal proxy.
 
-## What is included
+## Main features
 
-- Responsive static website: `index.html`, `assets/css/styles.css`, `assets/js/app.js`
-- Interactive exoplanet explorer with search, filters, sorting, cards, summary stats, and charts
-- Seed dataset at `data/exoplanets.json`, so the site works immediately after deployment
-- NASA TAP updater: `scripts/fetch_exoplanets.py`
-- GitHub Actions workflows:
-  - `.github/workflows/deploy-pages.yml`
-  - `.github/workflows/refresh-data.yml`
-- SEO/publication files: `robots.txt`, `sitemap.xml`, `404.html`, `.nojekyll`
+- Static GitHub Pages deployment; no frontend build system required.
+- Browser-side science notebook with adjustable Bond albedo and atmospheric mean molecular weight.
+- Kopparapu-style habitable-zone limits using published polynomial coefficients.
+- Transit light-curve and radial-velocity curve visualizations for the selected planet.
+- Mass-radius context plot with rocky-composition guide curves.
+- Science-oriented filters: optimistic/conservative HZ, rocky-density targets, transit-friendly targets, RV-friendly targets, and atmosphere-friendly targets.
+- NASA Exoplanet Archive TAP updater that requests stellar/orbital fields needed for deeper calculations.
+- Curated seed dataset so the site works immediately after cloning.
 
-## Deploy option A: separate `exoplanets` repository
-
-Use this option if you want the URL to be:
+## Repository structure
 
 ```text
-https://arifsolmaz.github.io/exoplanets/
+.
+├── index.html
+├── assets/
+│   ├── css/styles.css
+│   ├── js/app.js
+│   └── favicon.svg
+├── data/exoplanets.json
+├── scripts/fetch_exoplanets.py
+├── .github/workflows/deploy-pages.yml
+├── .github/workflows/refresh-data.yml
+├── README.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── robots.txt
+├── sitemap.xml
+└── 404.html
 ```
-
-1. Create a new public repository named `exoplanets` under the `arifsolmaz` GitHub account.
-2. Copy this repo's files into it.
-3. Push to the `main` branch.
-4. In GitHub: **Settings → Pages → Build and deployment → Source → GitHub Actions**.
-5. Run the `Deploy static site to GitHub Pages` workflow, or push a commit to `main`.
-
-## Deploy option B: copy into the homepage repo
-
-Use this option if you already have a repository named `arifsolmaz.github.io` and want this project as a subfolder.
-
-1. Create a folder named `exoplanets` inside your `arifsolmaz.github.io` repository.
-2. Copy these files into that folder.
-3. Because all site paths are relative, the page should work at:
-
-```text
-https://arifsolmaz.github.io/exoplanets/
-```
-
-If you use this option, you probably do not need the included `.github/workflows` files inside the subfolder. Keep them only if you adapt the workflow paths for the parent homepage repository.
 
 ## Run locally
 
-Use a local server, because browser `fetch()` calls do not reliably load JSON files from `file://`.
+Use a local web server. Opening `index.html` directly with `file://` can block JSON loading in the browser.
 
 ```bash
-cd open-exoplanet-explorer
-python3 -m http.server 8000
+python -m http.server 8000
 ```
 
 Then open:
@@ -58,90 +50,54 @@ Then open:
 http://localhost:8000/
 ```
 
-## Refresh the dataset from NASA
-
-The bundled dataset is a rounded seed dataset. To replace it with archive-derived records:
+## Refresh the exoplanet dataset
 
 ```bash
 python scripts/fetch_exoplanets.py
 ```
 
-For a smaller test file:
+For a small test extract:
 
 ```bash
 python scripts/fetch_exoplanets.py --limit 500
 ```
 
-The script writes `data/exoplanets.json` using the NASA Exoplanet Archive TAP sync endpoint and the `pscomppars` table.
+The script writes `data/exoplanets.json` using NASA Exoplanet Archive TAP output from `pscomppars`.
 
-## GitHub Actions data refresh
+## Deploy to GitHub Pages
 
-The included `refresh-data.yml` workflow:
+For a standalone repository named `exoplanets`:
 
-1. Runs every Monday.
-2. Fetches current NASA Exoplanet Archive data.
-3. Commits `data/exoplanets.json` if changed.
-4. Deploys the static site to GitHub Pages.
+```bash
+git add .
+git commit -m "Redesign exoplanet site as observatory notebook"
+git push origin main
+```
 
-For this workflow, set Pages source to **GitHub Actions** in repository settings.
-
-## Repository structure
+Then in GitHub:
 
 ```text
-.
-├── index.html
-├── 404.html
-├── robots.txt
-├── sitemap.xml
-├── assets/
-│   ├── css/styles.css
-│   ├── js/app.js
-│   └── favicon.svg
-├── data/
-│   └── exoplanets.json
-├── scripts/
-│   └── fetch_exoplanets.py
-└── .github/workflows/
-    ├── deploy-pages.yml
-    └── refresh-data.yml
+Settings → Pages → Build and deployment → Source → GitHub Actions
 ```
 
-## Data fields used by the frontend
+The included workflows can deploy the static site and refresh the data on a schedule or manually.
 
-Each planet record can contain:
+## Scientific model notes
 
-```json
-{
-  "name": "TRAPPIST-1 e",
-  "host": "TRAPPIST-1",
-  "method": "Transit",
-  "discovery_year": 2017,
-  "facility": "Spitzer Space Telescope",
-  "radius_earth": 0.92,
-  "mass_earth": 0.69,
-  "orbital_period_days": 6.1,
-  "distance_pc": 12.43,
-  "stellar_temp_k": 2566,
-  "spectral_type": "M8 V",
-  "tag": "Terrestrial",
-  "description": "..."
-}
-```
+This is an educational public-science site, not a peer-reviewed inference pipeline.
 
-The frontend also tolerates NASA-like column names such as `pl_name`, `hostname`, `discoverymethod`, `disc_year`, `pl_rade`, and `sy_dist`.
+The browser uses these simplified relationships when enough archive fields are available:
 
-## Customization ideas
+- Incident flux: `S = L★ / a²` in Earth units.
+- Habitable-zone limits: Kopparapu-style fourth-degree flux polynomial, with HZ distance `d = sqrt(L★ / S_eff)`.
+- Transit depth: `δ ≈ (Rp / R★)²`, reported in ppm.
+- RV semi-amplitude: simplified Keplerian amplitude with edge-on geometry when inclination is unavailable.
+- Density: `ρ = ρ⊕ M/R³`.
+- Surface gravity: `g = g⊕ M/R²`.
+- Transmission proxy: `Δ ≈ 2 N H Rp / R★²`, with `H = kT / μmH g`.
 
-- Add notebook exports under a `notebooks/` directory.
-- Add a blog section for “planet of the week”.
-- Add mission pages for Kepler, K2, TESS, JWST, PLATO, and Roman.
-- Add a stronger visual comparison view against Earth, Neptune, Jupiter, and the Solar System.
-- Replace the seed descriptions with your own explanatory notes.
+When archive fields are missing, the interface may estimate stellar luminosity, stellar radius, stellar mass, or semi-major axis using simple main-sequence and Keplerian fallbacks. The UI lists those caveats for the selected planet.
 
-## Attribution
+## Data attribution
 
-When using generated data in research, teaching, or public writing, credit the NASA Exoplanet Archive and consult its citation guidance. This repository’s script keeps the source table and query in the JSON metadata so visitors can inspect the data lineage.
-
-## License
-
-MIT. See `LICENSE`.
+If you use the refreshed NASA archive dataset in research or public analysis, cite the NASA Exoplanet Archive and check the latest archive documentation for required attribution. The static seed dataset is a compact educational starter dataset and should be replaced with the TAP-generated dataset for serious analysis.

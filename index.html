@@ -3,20 +3,20 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Open Exoplanet Explorer | Arif Solmaz</title>
+    <title>Open Exoplanet Explorer | Observatory Notebook</title>
     <meta
       name="description"
-      content="A public, data-driven GitHub Pages project for exploring confirmed exoplanets, discovery methods, planetary systems, and NASA Exoplanet Archive data."
+      content="A quieter public exoplanet observatory notebook with derived habitability, transit, radial-velocity, density, and atmosphere observability calculations from NASA Exoplanet Archive data."
     />
     <meta name="author" content="Arif Solmaz" />
-    <meta property="og:title" content="Open Exoplanet Explorer" />
+    <meta property="og:title" content="Open Exoplanet Explorer — Observatory Notebook" />
     <meta
       property="og:description"
-      content="Interactive exoplanet exploration, discovery-method explainers, and reproducible open data workflows."
+      content="Explore exoplanets through a calm science-notebook interface: habitable-zone placement, density, surface gravity, transit depth, radial velocity, and transmission proxies."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://arifsolmaz.github.io/exoplanets/" />
-    <meta name="theme-color" content="#07111f" />
+    <meta name="theme-color" content="#f3efe4" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
@@ -35,8 +35,9 @@
         <div class="nav-links" id="navLinks">
           <a href="#dashboard">Dashboard</a>
           <a href="#explorer">Explorer</a>
+          <a href="#science-lab">Science Lab</a>
+          <a href="#equations">Equations</a>
           <a href="#methods">Methods</a>
-          <a href="#timeline">Timeline</a>
           <a href="#data">Data</a>
         </div>
       </nav>
@@ -45,19 +46,21 @@
     <main id="main">
       <section class="hero section-shell" aria-labelledby="heroTitle">
         <div class="hero-copy">
-          <p class="eyebrow">Public science outreach · GitHub Pages · NASA archive workflow</p>
-          <h1 id="heroTitle">Explore worlds beyond the Solar System.</h1>
+          <p class="eyebrow">Public observatory notebook · NASA archive data · transparent equations</p>
+          <h1 id="heroTitle">An exoplanet atlas with the calm of a research notebook.</h1>
           <p class="hero-lede">
-            A static, open-source website for explaining exoplanet exploration, visualizing discovery
-            trends, and turning public archive data into an approachable astronomy experience.
+            Confirmed-planet data becomes a set of readable observing notes: incident flux,
+            Kopparapu-style habitable-zone placement, density, gravity, escape velocity, transit
+            depth, radial-velocity amplitude, and atmosphere transmission proxies.
           </p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#explorer">Start exploring</a>
-            <a class="button button-secondary" href="#data">View data workflow</a>
+            <a class="button button-primary" href="#science-lab">Open the notebook</a>
+            <a class="button button-secondary" href="#equations">Read the equations</a>
           </div>
           <p class="deployment-note">
-            Designed for <strong>arifsolmaz.github.io/exoplanets</strong>. All paths are relative, so the
-            project works as a standalone repository or as a folder inside your homepage repo.
+            Built for <strong>arifsolmaz.github.io/exoplanets</strong>. The site is static, relative-path
+            safe, and can be deployed from either a standalone <code>exoplanets</code> repository or an
+            <code>exoplanets/</code> folder inside your homepage repository.
           </p>
         </div>
         <div class="orbital-stage" aria-hidden="true">
@@ -65,9 +68,9 @@
           <div class="orbit orbit-two"><span></span></div>
           <div class="orbit orbit-three"><span></span></div>
           <div class="star-core"></div>
-          <div class="data-chip chip-one">Transit dips</div>
-          <div class="data-chip chip-two">Radial wobble</div>
-          <div class="data-chip chip-three">Direct images</div>
+          <div class="data-chip chip-one">S = L★ / a²</div>
+          <div class="data-chip chip-two">δ = (Rp/R★)²</div>
+          <div class="data-chip chip-three">K<sub>RV</sub></div>
         </div>
       </section>
 
@@ -83,32 +86,32 @@
         <article class="stat-card">
           <span class="stat-label">Planets loaded</span>
           <strong id="statPlanets">—</strong>
-          <span id="statPlanetsNote">confirmed and featured records</span>
+          <span>confirmed and featured records</span>
         </article>
         <article class="stat-card">
           <span class="stat-label">Discovery methods</span>
           <strong id="statMethods">—</strong>
-          <span>represented in the dataset</span>
+          <span>represented in the loaded catalog</span>
         </article>
         <article class="stat-card">
-          <span class="stat-label">Rocky-size worlds</span>
-          <strong id="statRocky">—</strong>
-          <span>≤ 2 Earth radii where radius is known</span>
+          <span class="stat-label">HZ-evaluable worlds</span>
+          <strong id="statHz">—</strong>
+          <span>with enough stellar/orbital information</span>
         </article>
         <article class="stat-card">
-          <span class="stat-label">Latest discovery year</span>
-          <strong id="statLatest">—</strong>
-          <span id="statDistance">median distance unavailable</span>
+          <span class="stat-label">Density available</span>
+          <strong id="statDensity">—</strong>
+          <span>mass and radius both known or estimated</span>
         </article>
       </section>
 
       <section id="dashboard" class="section-shell section-panel" aria-labelledby="dashboardTitle">
         <div class="section-heading">
-          <p class="eyebrow">At a glance</p>
-          <h2 id="dashboardTitle">Discovery patterns in the loaded catalog</h2>
+          <p class="eyebrow">Population physics</p>
+          <h2 id="dashboardTitle">Discovery patterns and physical observables</h2>
           <p>
-            The visualizations update automatically when the NASA data refresh script generates a larger
-            catalog file.
+            These charts are generated in the browser from the local JSON dataset. After running the
+            NASA archive updater, they scale from the seed catalog to the full static archive extract.
           </p>
         </div>
         <div class="dashboard-grid">
@@ -121,17 +124,31 @@
           </article>
           <article class="chart-card">
             <div class="chart-heading">
-              <h3>Discovery timeline</h3>
-              <span>by year</span>
-            </div>
-            <div id="timelineChart" class="timeline-chart" role="img" aria-label="Timeline chart of discovery years"></div>
-          </article>
-          <article class="chart-card">
-            <div class="chart-heading">
               <h3>Planet size classes</h3>
               <span>Earth radii</span>
             </div>
             <div id="sizeChart" class="bar-chart" role="img" aria-label="Bar chart of planet size classes"></div>
+          </article>
+          <article class="chart-card wide-card">
+            <div class="chart-heading">
+              <h3>Discovery timeline</h3>
+              <span>confirmed planet count by year</span>
+            </div>
+            <div id="timelineChart" class="timeline-chart" role="img" aria-label="Timeline chart of discovery years"></div>
+          </article>
+          <article class="chart-card wide-card">
+            <div class="chart-heading">
+              <h3>Radius vs. incident flux</h3>
+              <span>log-scaled science target map</span>
+            </div>
+            <div id="physicsMap" class="svg-chart" role="img" aria-label="Scatter plot of exoplanet radius versus incident flux"></div>
+          </article>
+          <article class="chart-card">
+            <div class="chart-heading">
+              <h3>Habitable-zone classification</h3>
+              <span>derived from available fields</span>
+            </div>
+            <div id="hzChart" class="bar-chart" role="img" aria-label="Habitable-zone classification counts"></div>
           </article>
         </div>
       </section>
@@ -140,10 +157,10 @@
         <div class="section-heading two-column-heading">
           <div>
             <p class="eyebrow">Interactive catalog</p>
-            <h2 id="explorerTitle">Search, filter, and compare exoplanets</h2>
+            <h2 id="explorerTitle">Search, filter, and triage targets</h2>
             <p>
-              Start with the curated seed dataset, then run the updater to replace it with NASA Exoplanet
-              Archive records.
+              The catalog now exposes science-oriented filters such as habitable-zone placement,
+              measurable transits, RV amplitude, and density/composition availability.
             </p>
           </div>
           <button class="button button-secondary" type="button" id="resetFilters">Reset filters</button>
@@ -173,6 +190,18 @@
             </select>
           </label>
           <label>
+            <span>Science filter</span>
+            <select id="scienceFilter">
+              <option value="all">All science cases</option>
+              <option value="hz">Inside optimistic HZ</option>
+              <option value="conservative-hz">Inside conservative HZ</option>
+              <option value="rocky-density">Rocky-size + density</option>
+              <option value="transit-friendly">Transit depth ≥ 500 ppm</option>
+              <option value="rv-friendly">RV amplitude ≥ 1 m/s</option>
+              <option value="atmosphere-friendly">Transmission proxy ≥ 20 ppm</option>
+            </select>
+          </label>
+          <label>
             <span>Discovery era</span>
             <select id="eraFilter">
               <option value="all">All years</option>
@@ -188,6 +217,10 @@
               <option value="year-desc">Newest discoveries</option>
               <option value="distance-asc">Nearest systems</option>
               <option value="radius-asc">Smallest known radius</option>
+              <option value="earth-flux">Earth-like incident flux</option>
+              <option value="transit-depth-desc">Largest transit depth</option>
+              <option value="rv-desc">Largest RV amplitude</option>
+              <option value="density-desc">Highest density</option>
               <option value="period-asc">Shortest orbit</option>
             </select>
           </label>
@@ -197,7 +230,7 @@
           <div class="results-column">
             <div class="results-header">
               <p id="resultCount">Loading records…</p>
-              <p class="muted">Click a card for details.</p>
+              <p class="muted">Click a card to analyze it in the lab.</p>
             </div>
             <div id="planetList" class="planet-grid" aria-live="polite"></div>
             <button class="button button-secondary load-more" type="button" id="loadMore">Load more</button>
@@ -206,100 +239,176 @@
           <aside class="detail-panel" aria-labelledby="detailTitle">
             <p class="eyebrow">Selected planet</p>
             <h3 id="detailTitle">No planet selected</h3>
-            <p id="detailSubtitle" class="muted">Choose a planet card to view physical and orbital properties.</p>
+            <p id="detailSubtitle" class="muted">Choose a planet card to view measured and derived properties.</p>
             <dl class="detail-list" id="detailList"></dl>
+            <h4>Science readout</h4>
+            <dl class="detail-list compact" id="detailScienceList"></dl>
             <p id="detailDescription" class="detail-description"></p>
+            <a class="button button-primary panel-action" id="analyzeButton" href="#science-lab">Analyze in science lab</a>
           </aside>
+        </div>
+      </section>
+
+      <section id="science-lab" class="section-shell section-panel" aria-labelledby="labTitleSection">
+        <div class="section-heading">
+          <p class="eyebrow">Observatory notebook</p>
+          <h2 id="labTitleSection">Selected-world observing notes</h2>
+          <p>
+            Change albedo and atmospheric mean molecular weight to see how assumptions affect temperature
+            and transmission signal. Values marked as estimated come from simple main-sequence or
+            equilibrium-temperature fallbacks when archive fields are missing.
+          </p>
+        </div>
+
+        <form class="lab-controls" aria-label="Science lab controls">
+          <label>
+            <span>Planet</span>
+            <select id="labPlanetSelect"></select>
+          </label>
+          <label class="range-label">
+            <span>Bond albedo: <output id="albedoOutput" for="albedoSlider">0.30</output></span>
+            <input id="albedoSlider" type="range" min="0" max="0.80" step="0.01" value="0.30" />
+          </label>
+          <label>
+            <span>Atmosphere model</span>
+            <select id="atmosphereSelect">
+              <option value="28.97">Earth-like N₂/O₂, μ≈29</option>
+              <option value="18.0">Water-rich, μ≈18</option>
+              <option value="44.0">CO₂-dominated, μ≈44</option>
+              <option value="2.3">H₂/He rich, μ≈2.3</option>
+            </select>
+          </label>
+          <label class="range-label">
+            <span>Transmission scale heights: <output id="scaleHeightsOutput" for="scaleHeightsInput">5</output></span>
+            <input id="scaleHeightsInput" type="range" min="1" max="10" step="1" value="5" />
+          </label>
+        </form>
+
+        <div class="lab-layout">
+          <article class="lab-summary-card">
+            <p class="eyebrow">Target</p>
+            <h3 id="labTitle">—</h3>
+            <p id="labSubtitle" class="muted">—</p>
+            <div id="labVerdict" class="verdict">Select a planet.</div>
+            <div id="derivedMetrics" class="derived-grid"></div>
+          </article>
+
+          <div class="visual-grid">
+            <article class="visual-card">
+              <div class="chart-heading">
+                <h3>Habitable-zone placement</h3>
+                <span>orbit vs. climate boundaries</span>
+              </div>
+              <div id="hzGraphic" class="lab-graphic" aria-label="Habitable zone graphic"></div>
+            </article>
+            <article class="visual-card">
+              <div class="chart-heading">
+                <h3>Transit light curve</h3>
+                <span>depth and duration proxy</span>
+              </div>
+              <div id="transitGraphic" class="lab-graphic" aria-label="Transit light curve simulation"></div>
+            </article>
+            <article class="visual-card">
+              <div class="chart-heading">
+                <h3>Radial velocity curve</h3>
+                <span>stellar wobble proxy</span>
+              </div>
+              <div id="rvGraphic" class="lab-graphic" aria-label="Radial velocity sinusoid simulation"></div>
+            </article>
+            <article class="visual-card">
+              <div class="chart-heading">
+                <h3>Mass-radius context</h3>
+                <span>composition interpretation</span>
+              </div>
+              <div id="massRadiusGraphic" class="lab-graphic" aria-label="Mass radius diagram"></div>
+            </article>
+          </div>
+        </div>
+        <div id="labCaveats" class="caveat-box"></div>
+      </section>
+
+      <section id="equations" class="section-shell section-panel" aria-labelledby="equationsTitle">
+        <div class="section-heading">
+          <p class="eyebrow">Explainable astronomy</p>
+          <h2 id="equationsTitle">The equations behind the interface</h2>
+          <p>
+            The site intentionally exposes the model assumptions. It is meant for public science,
+            target triage, and learning—not publication-grade inference.
+          </p>
+        </div>
+        <div class="equation-grid">
+          <article>
+            <h3>Incident flux</h3>
+            <p class="formula">S = L★ / a²</p>
+            <p>Flux is measured in Earth units when luminosity is in solar units and semi-major axis is in AU.</p>
+          </article>
+          <article>
+            <h3>Habitable-zone limits</h3>
+            <p class="formula">S<sub>eff</sub> = S<sub>☉</sub> + aT★ + bT★² + cT★³ + dT★⁴</p>
+            <p>For Kopparapu-style limits, <code>T★ = T_eff − 5780 K</code> and distance is <code>√(L★/S_eff)</code>.</p>
+          </article>
+          <article>
+            <h3>Transit depth</h3>
+            <p class="formula">δ ≈ (Rp / R★)²</p>
+            <p>The brightness dip is reported in ppm. This ignores limb darkening, grazing geometry, and stellar variability.</p>
+          </article>
+          <article>
+            <h3>Radial velocity</h3>
+            <p class="formula">K ≈ 0.0895 Mp P<sup>−1/3</sup> M★<sup>−2/3</sup> / √(1−e²)</p>
+            <p>The implementation assumes edge-on geometry unless inclination is known.</p>
+          </article>
+          <article>
+            <h3>Bulk density and gravity</h3>
+            <p class="formula">ρ = ρ⊕ M/R³ · g = g⊕ M/R²</p>
+            <p>Mass and radius together are the first-order clues to rocky, volatile-rich, or giant-planet structure.</p>
+          </article>
+          <article>
+            <h3>Transmission proxy</h3>
+            <p class="formula">Δ ≈ 2 N H Rp / R★²</p>
+            <p>Scale height <code>H = kT/μmHg</code>. This is a rough atmosphere-signal proxy, not a retrieval model.</p>
+          </article>
         </div>
       </section>
 
       <section id="methods" class="section-shell section-panel" aria-labelledby="methodsTitle">
         <div class="section-heading">
           <p class="eyebrow">How exoplanets are detected</p>
-          <h2 id="methodsTitle">Discovery methods explained without hand-waving</h2>
+          <h2 id="methodsTitle">Discovery methods connected to observables</h2>
           <p>
-            Exoplanet science often infers planets from how they affect the light or motion of their host
-            stars. The site’s method filters connect those observing techniques to real planets.
+            Each method measures a different physical signature, so the science lab reports the quantities
+            that matter for follow-up rather than only the discovery label.
           </p>
         </div>
         <div class="method-grid">
           <article>
-            <span class="method-icon">☌</span>
-            <h3>Transit</h3>
+            <h3>Transit photometry</h3>
             <p>
-              A planet crosses in front of its star and blocks a small fraction of starlight. Repeated dips
-              reveal orbital period; dip depth helps estimate radius.
+              Detects a small, periodic dimming when a planet crosses the stellar disk. The depth constrains
+              radius; repeated events constrain period; duration and shape constrain orbital geometry.
             </p>
           </article>
           <article>
-            <span class="method-icon">↔</span>
             <h3>Radial velocity</h3>
             <p>
-              A planet’s gravity makes its host star wobble. Doppler shifts in the stellar spectrum reveal a
-              minimum planet mass and orbital period.
+              Measures Doppler shifts in stellar spectra caused by the star orbiting the system barycenter.
+              It gives a mass-related signal and is strongest for massive planets close to low-mass stars.
             </p>
           </article>
           <article>
-            <span class="method-icon">◉</span>
             <h3>Direct imaging</h3>
             <p>
-              Telescopes suppress the host star’s glare and capture light from young, hot, wide-orbit giant
-              planets directly.
+              Separates faint planetary light from a bright host star. It favors young, hot, massive planets
+              at wide separations where contrast and angular separation are less punishing.
             </p>
           </article>
           <article>
-            <span class="method-icon">⌁</span>
             <h3>Microlensing</h3>
             <p>
-              Gravity from a foreground star-planet system briefly magnifies background starlight, creating a
-              telltale lensing signal.
+              Uses the gravitational field of a foreground system as a lens. It can reveal planets far away,
+              but the events are usually non-repeatable and follow-up characterization is difficult.
             </p>
           </article>
         </div>
-      </section>
-
-      <section id="timeline" class="section-shell section-panel" aria-labelledby="timelineTitle">
-        <div class="section-heading">
-          <p class="eyebrow">Exploration milestones</p>
-          <h2 id="timelineTitle">A compact exoplanet exploration timeline</h2>
-        </div>
-        <ol class="timeline-list">
-          <li>
-            <time datetime="1995">1995</time>
-            <div>
-              <h3>First planet around a Sun-like star</h3>
-              <p>51 Pegasi b established hot Jupiters as a major class of close-orbiting giant planets.</p>
-            </div>
-          </li>
-          <li>
-            <time datetime="2009">2009</time>
-            <div>
-              <h3>Kepler changes the scale of the field</h3>
-              <p>The Kepler mission made transits the dominant engine of exoplanet population statistics.</p>
-            </div>
-          </li>
-          <li>
-            <time datetime="2016">2016</time>
-            <div>
-              <h3>Nearby small-world discoveries accelerate</h3>
-              <p>Proxima Centauri b and the TRAPPIST-1 system focused attention on nearby M-dwarf systems.</p>
-            </div>
-          </li>
-          <li>
-            <time datetime="2018">2018</time>
-            <div>
-              <h3>TESS begins an all-sky search</h3>
-              <p>TESS prioritizes bright, nearby stars, producing targets well suited for follow-up studies.</p>
-            </div>
-          </li>
-          <li>
-            <time datetime="2020s">2020s</time>
-            <div>
-              <h3>Atmospheres become a public focal point</h3>
-              <p>Space telescopes and high-resolution ground instruments increasingly probe exoplanet atmospheres.</p>
-            </div>
-          </li>
-        </ol>
       </section>
 
       <section id="data" class="section-shell section-panel" aria-labelledby="dataTitle">
@@ -309,7 +418,8 @@
             <h2 id="dataTitle">Built for reproducible public publishing</h2>
             <p>
               The repository includes a Python script that queries the NASA Exoplanet Archive TAP service,
-              normalizes selected fields, and writes the static JSON file consumed by this page.
+              converts selected fields into a browser-ready JSON catalog, and keeps the static site deployable
+              through GitHub Pages.
             </p>
           </div>
           <a class="button button-primary" href="https://github.com/arifsolmaz/exoplanets">View repository</a>
@@ -323,33 +433,34 @@
             </p>
           </article>
           <article>
-            <h3>2. Data refresh</h3>
+            <h3>2. Science fields</h3>
             <p>
-              Run <code>python scripts/fetch_exoplanets.py</code> locally or trigger the included GitHub
-              Actions workflow to update the JSON catalog.
+              The updater requests stellar mass, stellar radius, luminosity, inclination, eccentricity,
+              insolation, density, and photometric fields when available.
             </p>
           </article>
           <article>
-            <h3>3. Public deployment</h3>
+            <h3>3. Data refresh</h3>
             <p>
-              Deploy from the repository root or use the included Pages workflow. The project is ready for
-              <code>https://arifsolmaz.github.io/exoplanets/</code>.
+              Run <code>python scripts/fetch_exoplanets.py</code> locally or trigger the included GitHub
+              Actions workflow to update and redeploy the JSON catalog.
             </p>
           </article>
         </div>
         <div class="resource-list" aria-label="External resources">
           <a href="https://exoplanetarchive.ipac.caltech.edu/">NASA Exoplanet Archive</a>
+          <a href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html">NASA TAP documentation</a>
+          <a href="https://personal.ems.psu.edu/~jfk4/ruk15/planets/">Kopparapu HZ calculator</a>
           <a href="https://science.nasa.gov/exoplanets/">NASA Exoplanets</a>
-          <a href="https://science.nasa.gov/citizen-science/exoplanet-watch/">Exoplanet Watch</a>
-          <a href="https://www.zooniverse.org/projects/nora-dot-eisner/planet-hunters-tess">Planet Hunters TESS</a>
         </div>
       </section>
     </main>
 
     <footer class="site-footer section-shell">
       <p>
-        Built by Arif Solmaz as an open, public GitHub Pages project. Data can be refreshed from the NASA
-        Exoplanet Archive; seed values are provided so the site works immediately after cloning.
+        Built by Arif Solmaz as an open, public GitHub Pages exoplanet observatory notebook. Use the included
+        archive workflow for official NASA-derived values; treat browser-side estimates as educational
+        approximations.
       </p>
     </footer>
 

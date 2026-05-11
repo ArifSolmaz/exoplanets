@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: Open Exoplanet Explorer — Deep Science Lab
+message: "If you use this educational site or derived workflow, please cite the repository and cite the NASA Exoplanet Archive separately when using archive data."
+authors:
+  - family-names: Solmaz
+    given-names: Arif
+repository-code: https://github.com/arifsolmaz/exoplanets
+url: https://arifsolmaz.github.io/exoplanets/
+license: MIT
+version: 2.0.0
