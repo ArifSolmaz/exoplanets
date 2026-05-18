@@ -3,20 +3,20 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Open Exoplanet Explorer | Observatory Notebook</title>
+    <title>Open Exoplanet Explorer | Field Guide</title>
     <meta
       name="description"
-      content="A quieter public exoplanet observatory notebook with derived habitability, transit, radial-velocity, density, and atmosphere observability calculations from NASA Exoplanet Archive data."
+      content="A public exoplanet field guide that starts with planet stories, science lenses, and visual browsing before opening exact NASA archive measurements in the lab."
     />
     <meta name="author" content="Arif Solmaz" />
-    <meta property="og:title" content="Open Exoplanet Explorer — Observatory Notebook" />
+    <meta property="og:title" content="Open Exoplanet Explorer | Field Guide" />
     <meta
       property="og:description"
-      content="Explore exoplanets through a calm science-notebook interface: habitable-zone placement, density, surface gravity, transit depth, radial velocity, and transmission proxies."
+      content="Browse exoplanets by story, science lens, and visual character, then open the lab when you want the measured archive values."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://arifsolmaz.github.io/exoplanets/" />
-    <meta name="theme-color" content="#f3efe4" />
+    <meta name="theme-color" content="#f7f9f7" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <script>
       window.MathJax = {
@@ -36,7 +36,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
-  <body>
+  <body data-theme="mission">
     <a class="skip-link" href="#main">Skip to main content</a>
 
     <header class="site-header" data-elevated="false">
@@ -49,10 +49,10 @@
           Menu
         </button>
         <div class="nav-links" id="navLinks">
-          <a href="#dashboard">Dashboard</a>
-          <a href="#explorer">Explorer</a>
-          <a href="#science-lab">Science Lab</a>
-          <a href="#equations">Equations</a>
+          <a href="#dashboard">Lenses</a>
+          <a href="#explorer">Worlds</a>
+          <a href="#science-lab">Lab</a>
+          <a href="#equations">Physics</a>
           <a href="#methods">Methods</a>
           <a href="#data">Data</a>
         </div>
@@ -62,31 +62,54 @@
     <main id="main">
       <section class="hero section-shell" aria-labelledby="heroTitle">
         <div class="hero-copy">
-          <p class="eyebrow">Public observatory notebook · NASA archive data · transparent equations</p>
-          <h1 id="heroTitle">An exoplanet atlas with the calm of a research notebook.</h1>
+          <p class="eyebrow">Open exoplanet field guide</p>
+          <h1 id="heroTitle">Find worlds worth looking at.</h1>
           <p class="hero-lede">
-            Confirmed-planet data becomes a set of readable observing notes: incident flux,
-            Kopparapu-style habitable-zone placement, density, gravity, escape velocity, transit
-            depth, radial-velocity amplitude, and atmosphere transmission proxies.
+            A calmer way into the archive: start with recognizable planet stories, then open the
+            lab only when you want the measurements behind them.
           </p>
+          <div class="theme-switcher" aria-label="Design alternatives">
+            <span>View</span>
+            <button type="button" class="theme-option is-active" data-theme-value="mission" aria-pressed="true">Field Guide</button>
+            <button type="button" class="theme-option" data-theme-value="atlas" aria-pressed="false">Stellar Atlas</button>
+            <button type="button" class="theme-option" data-theme-value="nocturne" aria-pressed="false">Night Lab</button>
+          </div>
           <div class="hero-actions">
-            <a class="button button-primary" href="#science-lab">Open the notebook</a>
-            <a class="button button-secondary" href="#equations">Read the equations</a>
+            <a class="button button-primary" href="#explorer">Browse worlds</a>
+            <a class="button button-secondary" href="#dashboard">See science lenses</a>
+            <a class="button button-secondary" href="#science-lab">Open lab</a>
           </div>
           <p class="deployment-note">
-            Built for <strong>arifsolmaz.github.io/exoplanets</strong>. The site is static, relative-path
-            safe, and can be deployed from either a standalone <code>exoplanets</code> repository or an
-            <code>exoplanets/</code> folder inside your homepage repository.
+            The exact archive values are still here; they are just tucked behind a more readable first layer.
           </p>
         </div>
         <div class="orbital-stage" aria-hidden="true">
-          <div class="orbit orbit-one"><span></span></div>
-          <div class="orbit orbit-two"><span></span></div>
-          <div class="orbit orbit-three"><span></span></div>
-          <div class="star-core"></div>
-          <div class="data-chip chip-one">S = L★ / a²</div>
-          <div class="data-chip chip-two">δ = (Rp/R★)²</div>
-          <div class="data-chip chip-three">K<sub>RV</sub></div>
+          <div class="stage-topline">
+            <span>featured route</span>
+            <span>world profile</span>
+          </div>
+          <div class="system-portrait">
+            <div class="survey-grid"></div>
+            <div class="star-field">
+              <span class="star-dot dot-one"></span>
+              <span class="star-dot dot-two"></span>
+              <span class="star-dot dot-three"></span>
+              <span class="star-dot dot-four"></span>
+              <span class="star-dot dot-five"></span>
+            </div>
+            <div class="system-ring ring-one"></div>
+            <div class="system-ring ring-two"></div>
+            <div class="system-ring ring-three"></div>
+            <div class="system-core"></div>
+            <div class="signal-card signal-hz">temperate trail</div>
+            <div class="signal-card signal-transit">atmosphere picks</div>
+            <div class="signal-card signal-density">strange worlds</div>
+          </div>
+          <div class="stage-readouts">
+            <span>habitable-zone candidates</span>
+            <span>transit-friendly worlds</span>
+            <span>nearby systems</span>
+          </div>
         </div>
       </section>
 
@@ -123,48 +146,53 @@
 
       <section id="dashboard" class="section-shell section-panel" aria-labelledby="dashboardTitle">
         <div class="section-heading">
-          <p class="eyebrow">Population physics</p>
-          <h2 id="dashboardTitle">Discovery patterns and physical observables</h2>
+          <p class="eyebrow">Science lenses</p>
+          <h2 id="dashboardTitle">Choose a lens before you open the lab</h2>
           <p>
-            Population figures are rendered with Python/Matplotlib from the local JSON dataset during
-            deployment, with lightweight browser fallbacks when generated SVGs are unavailable.
+            Start with the kind of world you want to understand. The archive still has the precise
+            measurements, but this layer reads like a guidebook instead of a spreadsheet.
           </p>
         </div>
-        <div class="dashboard-grid">
-          <article class="chart-card">
+        <div class="dashboard-grid lens-grid">
+          <article class="chart-card lens-card lens-card-climate">
             <div class="chart-heading">
-              <h3>Discovery methods</h3>
-              <span id="methodChartNote">—</span>
+              <h3>Temperate routes</h3>
+              <span>climate paths</span>
             </div>
-            <div id="methodChart" class="bar-chart" role="img" aria-label="Bar chart of discovery methods"></div>
+            <p class="lens-copy">Find worlds that sit near the archive's habitable-zone story.</p>
+            <div id="hzChart" class="bar-chart lens-visual" role="img" aria-label="Habitable-zone story lens"></div>
           </article>
-          <article class="chart-card">
+          <article class="chart-card lens-card lens-card-family">
             <div class="chart-heading">
-              <h3>Planet size classes</h3>
-              <span>Earth radii</span>
+              <h3>World families</h3>
+              <span>visual family</span>
             </div>
-            <div id="sizeChart" class="bar-chart" role="img" aria-label="Bar chart of planet size classes"></div>
+            <p class="lens-copy">Move between rocky worlds, sub-Neptunes, giants, and uncertain records.</p>
+            <div id="sizeChart" class="bar-chart lens-visual" role="img" aria-label="Planet family lens"></div>
           </article>
-          <article class="chart-card wide-card">
+          <article class="chart-card lens-card lens-card-method">
             <div class="chart-heading">
-              <h3>Discovery timeline</h3>
-              <span>confirmed planet count by year</span>
+              <h3>Detection stories</h3>
+              <span id="methodChartNote">observing paths</span>
             </div>
-            <div id="timelineChart" class="timeline-chart" role="img" aria-label="Timeline chart of discovery years"></div>
+            <p class="lens-copy">See whether a world revealed itself through shadow, wobble, lensing, or direct light.</p>
+            <div id="methodChart" class="bar-chart lens-visual" role="img" aria-label="Discovery-method story lens"></div>
           </article>
-          <article class="chart-card wide-card">
+          <article class="chart-card wide-card lens-card lens-card-map">
             <div class="chart-heading">
-              <h3>Radius vs. incident flux</h3>
-              <span>log-scaled science target map</span>
+              <h3>Survey terrain</h3>
+              <span>target landscape</span>
             </div>
-            <div id="physicsMap" class="svg-chart" role="img" aria-label="Scatter plot of exoplanet radius versus incident flux"></div>
+            <p class="lens-copy">A map-like view of where worlds fall from cool prospects to high-irradiation outliers.</p>
+            <div id="physicsMap" class="svg-chart lens-visual" role="img" aria-label="Exoplanet target landscape"></div>
           </article>
-          <article class="chart-card">
+          <article class="chart-card lens-card lens-card-era">
             <div class="chart-heading">
-              <h3>Habitable-zone classification</h3>
-              <span>derived from available fields</span>
+              <h3>Archive eras</h3>
+              <span>discovery waves</span>
             </div>
-            <div id="hzChart" class="bar-chart" role="img" aria-label="Habitable-zone classification counts"></div>
+            <p class="lens-copy">Follow the catalog from early ground-based records into modern survey finds.</p>
+            <div id="timelineChart" class="timeline-chart lens-visual" role="img" aria-label="Discovery-era story lens"></div>
           </article>
         </div>
       </section>
@@ -172,11 +200,11 @@
       <section id="explorer" class="section-shell section-panel" aria-labelledby="explorerTitle">
         <div class="section-heading two-column-heading">
           <div>
-            <p class="eyebrow">Interactive catalog</p>
-            <h2 id="explorerTitle">Search, filter, and triage targets</h2>
+            <p class="eyebrow">World browser</p>
+            <h2 id="explorerTitle">Browse planets by story</h2>
             <p>
-              The catalog now exposes science-oriented filters such as habitable-zone placement,
-              measurable transits, RV amplitude, and density/composition availability.
+              Start from featured worlds, filter by science case, and open any card for the measured
+              readout.
             </p>
           </div>
           <button class="button button-secondary" type="button" id="resetFilters">Reset filters</button>
@@ -209,12 +237,12 @@
             <span>Science filter</span>
             <select id="scienceFilter">
               <option value="all">All science cases</option>
-              <option value="hz">Inside optimistic HZ</option>
-              <option value="conservative-hz">Inside conservative HZ</option>
-              <option value="rocky-density">Rocky-size + density</option>
-              <option value="transit-friendly">Transit depth ≥ 500 ppm</option>
-              <option value="rv-friendly">RV amplitude ≥ 1 m/s</option>
-              <option value="atmosphere-friendly">Transmission proxy ≥ 20 ppm</option>
+              <option value="hz">Temperate-zone candidates</option>
+              <option value="conservative-hz">Main temperate band</option>
+              <option value="rocky-density">Rocky-compatible</option>
+              <option value="transit-friendly">Clear transit signal</option>
+              <option value="rv-friendly">Measurable wobble</option>
+              <option value="atmosphere-friendly">Atmosphere follow-up</option>
             </select>
           </label>
           <label>
@@ -229,15 +257,16 @@
           <label>
             <span>Sort by</span>
             <select id="sortSelect">
+              <option value="featured">Featured worlds</option>
               <option value="name-asc">Planet name</option>
-              <option value="year-desc">Newest discoveries</option>
+              <option value="year-desc">Recent archive additions</option>
               <option value="distance-asc">Nearest systems</option>
               <option value="radius-asc">Smallest known radius</option>
               <option value="earth-flux">Earth-like incident flux</option>
-              <option value="transit-depth-desc">Largest transit depth</option>
-              <option value="rv-desc">Largest RV amplitude</option>
-              <option value="density-desc">Highest density</option>
-              <option value="period-asc">Shortest orbit</option>
+              <option value="transit-depth-desc">Strongest transit</option>
+              <option value="rv-desc">Strongest wobble</option>
+              <option value="density-desc">Densest worlds</option>
+              <option value="period-asc">Tightest orbit</option>
             </select>
           </label>
         </form>

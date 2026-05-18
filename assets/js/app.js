@@ -1,6 +1,30 @@
 const DATA_URL = './data/exoplanets.json';
 const PLOT_MANIFEST_URL = './assets/plots/manifest.json';
 const PAGE_SIZE = 12;
+const THEME_STORAGE_KEY = 'open-exoplanet-explorer-theme';
+const THEMES = new Set(['mission', 'atlas', 'nocturne']);
+const THEME_COLORS = {
+  mission: '#f7f9f7',
+  atlas: '#f7f4ed',
+  nocturne: '#090a0f',
+};
+const FEATURED_TARGETS = [
+  'Proxima Cen b',
+  'Barnard b',
+  'Teegarden\'s Star b',
+  'Teegarden\'s Star c',
+  'TRAPPIST-1 e',
+  'TRAPPIST-1 f',
+  'Kepler-186 f',
+  'TOI-700 d',
+  'K2-18 b',
+  'LHS 1140 b',
+  'GJ 486 b',
+  '55 Cancri e',
+  'GJ 1214 b',
+  'HD 209458 b',
+  '51 Pegasi b',
+];
 
 const CONSTANTS = {
   earthDensity: 5.514,
@@ -100,6 +124,8 @@ const elements = {
   rvGraphic: document.querySelector('#rvGraphic'),
   massRadiusGraphic: document.querySelector('#massRadiusGraphic'),
   labCaveats: document.querySelector('#labCaveats'),
+  themeButtons: document.querySelectorAll('[data-theme-value]'),
+  themeColor: document.querySelector('meta[name="theme-color"]'),
 };
 
 function compactNumber(value) {
@@ -549,21 +575,7 @@ function getDefaultScience(planet) {
 
 
 function chooseInitialPlanet(planets) {
-  const preferred = [
-    'TRAPPIST-1 e',
-    'TRAPPIST-1 f',
-    'Proxima Centauri b',
-    'Kepler-186 f',
-    'TOI-700 d',
-    'K2-18 b',
-    'LHS 1140 b',
-    'GJ 486 b',
-    '55 Cancri e',
-    'GJ 1214 b',
-    'HD 209458 b',
-    '51 Pegasi b',
-  ];
-  for (const name of preferred) {
+  for (const name of FEATURED_TARGETS) {
     const match = planets.find((planet) => planet.name === name);
     if (match) return match;
   }
@@ -636,6 +648,26 @@ function sortPlanets(planets, sortMode) {
   };
 
   switch (sortMode) {
+    case 'featured':
+      return copy.sort((a, b) => {
+        const ai = FEATURED_TARGETS.indexOf(a.name);
+        const bi = FEATURED_TARGETS.indexOf(b.name);
+        const aFeatured = ai === -1 ? Number.POSITIVE_INFINITY : ai;
+        const bFeatured = bi === -1 ? Number.POSITIVE_INFINITY : bi;
+        if (aFeatured !== bFeatured) return aFeatured - bFeatured;
+        const aScience = getDefaultScience(a);
+        const bScience = getDefaultScience(b);
+        const score = (planet, science) => {
+          let value = 0;
+          if (['conservative', 'optimistic'].includes(science.hz.category)) value += 4;
+          if (isPositive(science.transitDepthPpm)) value += 2;
+          if (isPositive(science.rvSemiAmplitude)) value += 2;
+          if (isPositive(science.density)) value += 1;
+          if (planet.description) value += 1;
+          return value;
+        };
+        return score(b, bScience) - score(a, aScience) || a.name.localeCompare(b.name);
+      });
     case 'year-desc':
       return copy.sort((a, b) => {
         const ay = a.discovery_year ?? -Infinity;
@@ -729,10 +761,10 @@ function populateLabSelect() {
 }
 
 function renderStatus() {
-  const mode = state.meta.mode ? `${state.meta.mode} dataset` : 'dataset';
-  const generated = state.meta.generated_utc ? ` · generated ${state.meta.generated_utc}` : '';
-  const source = state.meta.source ? ` · ${state.meta.source}` : '';
-  elements.dataStatus.textContent = `${compactNumber(state.planets.length)} planets loaded from ${mode}${generated}${source}`;
+  const mode = state.meta.mode ? `${state.meta.mode} catalog` : 'catalog';
+  const source = state.meta.source ? ` from ${state.meta.source}` : '';
+  elements.dataStatus.textContent = `NASA archive ${mode}${source} is loaded. Exact values live in the science lab.`;
+  elements.dataStatus.title = `${compactNumber(state.planets.length)} planet records`;
 }
 
 function renderStats() {
@@ -740,10 +772,23 @@ function renderStats() {
   const densityCount = state.planets.filter((planet) => isPositive(getDefaultScience(planet).density)).length;
   const hzCount = state.planets.filter((planet) => getDefaultScience(planet).hz.category !== 'unknown').length;
 
-  elements.statPlanets.textContent = compactNumber(state.planets.length);
-  elements.statMethods.textContent = compactNumber(methodCount);
-  elements.statHz.textContent = compactNumber(hzCount);
-  elements.statDensity.textContent = compactNumber(densityCount);
+  elements.statPlanets.textContent = 'Loaded';
+  elements.statMethods.textContent = 'Varied';
+  elements.statHz.textContent = 'Mapped';
+  elements.statDensity.textContent = 'Ready';
+  elements.statPlanets.title = `${compactNumber(state.planets.length)} planet records`;
+  elements.statMethods.title = `${compactNumber(methodCount)} discovery methods`;
+  elements.statHz.title = `${compactNumber(hzCount)} worlds with habitable-zone context`;
+  elements.statDensity.title = `${compactNumber(densityCount)} worlds with density context`;
+}
+
+function qualitativeAmount(count, max) {
+  if (!count) return 'none';
+  const ratio = count / Math.max(max, 1);
+  if (ratio >= 0.72) return 'dominant';
+  if (ratio >= 0.34) return 'common';
+  if (ratio >= 0.12) return 'visible';
+  return 'rare';
 }
 
 function renderBarChart(container, entries, options = {}) {
@@ -770,9 +815,12 @@ function renderBarChart(container, entries, options = {}) {
 
     const value = document.createElement('span');
     value.className = 'bar-value';
-    value.textContent = options.percent
+    value.textContent = options.numeric
+      ? compactNumber(entry.count)
+      : options.percent
       ? `${formatNumber((entry.count / Math.max(state.planets.length, 1)) * 100, 1)}%`
-      : compactNumber(entry.count);
+      : qualitativeAmount(entry.count, max);
+    value.title = compactNumber(entry.count);
 
     row.append(labelEl, track, value);
     container.append(row);
@@ -780,15 +828,13 @@ function renderBarChart(container, entries, options = {}) {
 }
 
 function renderCharts() {
-  const methodEntries = sortEntriesDescending(countBy(state.planets, (planet) => planet.method)).slice(0, 8);
-  elements.methodChartNote.textContent = globalPlotPath('methods') ? 'Python figure' : `${methodEntries.length} shown`;
-  if (!renderGlobalPlot(elements.methodChart, 'methods', 'Discovery method distribution generated by Python')) {
-    renderBarChart(elements.methodChart, methodEntries);
-  }
+  const methodEntries = sortEntriesDescending(countBy(state.planets, (planet) => planet.method)).slice(0, 5);
+  elements.methodChartNote.textContent = 'observing paths';
+  renderBarChart(elements.methodChart, methodEntries);
 
   const sizeOrder = ['Terrestrial', 'Super-Earth', 'Sub-Neptune', 'Giant', 'Super-Jupiter', 'Unknown'];
   const sizeCounts = countBy(state.planets, (planet) => planet.sizeClass);
-  renderBarChart(elements.sizeChart, sizeOrder.map((label) => [label, sizeCounts.get(label) ?? 0]), { percent: true });
+  renderBarChart(elements.sizeChart, sizeOrder.map((label) => [label, sizeCounts.get(label) ?? 0]));
 
   renderTimelineChart();
   renderPhysicsMap();
@@ -796,57 +842,13 @@ function renderCharts() {
 }
 
 function renderTimelineChart() {
-  if (renderGlobalPlot(elements.timelineChart, 'timeline', 'Discovery timeline generated by Python')) return;
-
-  const yearCounts = [...countBy(
-    state.planets.filter((planet) => Number.isFinite(planet.discovery_year)),
-    (planet) => planet.discovery_year,
-  ).entries()].sort((a, b) => a[0] - b[0]);
-
-  if (!yearCounts.length) {
-    elements.timelineChart.innerHTML = '<div class="empty-state">No discovery years available.</div>';
-    return;
-  }
-
-  const width = 760;
-  const height = 265;
-  const padding = { top: 24, right: 22, bottom: 42, left: 42 };
-  const chartWidth = width - padding.left - padding.right;
-  const chartHeight = height - padding.top - padding.bottom;
-  const maxCount = Math.max(...yearCounts.map(([, count]) => count), 1);
-  const barGap = 3;
-  const barWidth = Math.max(3, (chartWidth / yearCounts.length) - barGap);
-  const tickEvery = Math.max(1, Math.ceil(yearCounts.length / 7));
-
-  const bars = yearCounts.map(([year, count], index) => {
-    const x = padding.left + index * (barWidth + barGap);
-    const barHeight = Math.max(2, (count / maxCount) * chartHeight);
-    const y = padding.top + chartHeight - barHeight;
-    return `<rect class="timeline-bar" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${barHeight.toFixed(2)}"><title>${year}: ${count} planets</title></rect>`;
-  }).join('');
-
-  const labels = yearCounts
-    .filter((_, index) => index % tickEvery === 0 || index === yearCounts.length - 1)
-    .map(([year]) => {
-      const sourceIndex = yearCounts.findIndex(([candidate]) => candidate === year);
-      const x = padding.left + sourceIndex * (barWidth + barGap) + barWidth / 2;
-      return `<text class="timeline-label" x="${x.toFixed(2)}" y="${height - 12}" text-anchor="middle">${year}</text>`;
-    }).join('');
-
-  elements.timelineChart.innerHTML = `
-    <svg viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="timelineGradient" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#6f8062" />
-          <stop offset="100%" stop-color="#375f73" />
-        </linearGradient>
-      </defs>
-      <line class="axis-line" x1="${padding.left}" y1="${padding.top + chartHeight}" x2="${width - padding.right}" y2="${padding.top + chartHeight}" />
-      <text class="timeline-axis" x="${padding.left}" y="16">${maxCount} max/year</text>
-      ${bars.replaceAll('class="timeline-bar"', 'class="timeline-bar" fill="url(#timelineGradient)"')}
-      ${labels}
-    </svg>
-  `;
+  const eraCounts = countBy(state.planets, (planet) => discoveryEra(planet.discovery_year));
+  renderBarChart(elements.timelineChart, [
+    ['Early searches', eraCounts.get('early') ?? 0],
+    ['Survey boom', eraCounts.get('kepler') ?? 0],
+    ['Current era', eraCounts.get('recent') ?? 0],
+    ['Archive unknowns', eraCounts.get('unknown') ?? 0],
+  ]);
 }
 
 function logScale(value, min, max, size) {
@@ -855,8 +857,6 @@ function logScale(value, min, max, size) {
 }
 
 function renderPhysicsMap() {
-  if (renderGlobalPlot(elements.physicsMap, 'radius_flux', 'Radius versus incident flux map generated by Python')) return;
-
   const points = state.planets
     .map((planet) => ({ planet, science: getDefaultScience(planet) }))
     .filter(({ planet, science }) => isPositive(planet.radius_earth) && isPositive(science.insolation));
@@ -867,41 +867,23 @@ function renderPhysicsMap() {
   }
 
   const width = 760;
-  const height = 330;
-  const pad = { top: 26, right: 24, bottom: 54, left: 58 };
-  const chartW = width - pad.left - pad.right;
-  const chartH = height - pad.top - pad.bottom;
-  const fluxValues = points.map(({ science }) => science.insolation);
-  const radiusValues = points.map(({ planet }) => planet.radius_earth);
-  const xMin = Math.max(0.02, Math.min(0.03, Math.min(...fluxValues) * 0.7));
-  const xMax = Math.max(2000, Math.max(...fluxValues) * 1.3);
-  const yMin = Math.max(0.2, Math.min(0.3, Math.min(...radiusValues) * 0.8));
-  const yMax = Math.max(20, Math.max(...radiusValues) * 1.2);
+  const height = 260;
 
-  const bandX1 = pad.left + logScale(0.32, xMin, xMax, chartW);
-  const bandX2 = pad.left + logScale(1.776, xMin, xMax, chartW);
-  const bandWidth = Math.max(0, bandX2 - bandX1);
-
-  const dots = points.slice(0, 1200).map(({ planet, science }) => {
-    const x = pad.left + logScale(science.insolation, xMin, xMax, chartW);
-    const y = pad.top + chartH - logScale(planet.radius_earth, yMin, yMax, chartH);
+  const dots = points.slice(0, 260).map(({ planet, science }, index) => {
+    const x = 54 + ((index * 47) % 650);
+    const y = 38 + ((index * 83) % 178);
+    const radius = planet.radius_earth < 2 ? 3.2 : planet.radius_earth < 4 ? 4.5 : 6.2;
     const category = science.hz.category;
     const fill = category === 'conservative' || category === 'optimistic' ? '#6f8062' : category === 'hot' ? '#9b5b45' : category === 'cold' ? '#6f6a8d' : '#375f73';
-    return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4" fill="${fill}" class="scatter-dot"><title>${escapeHtml(planet.name)} — S=${formatNumber(science.insolation, 2)} S⊕, R=${formatNumber(planet.radius_earth, 2)} R⊕</title></circle>`;
+    return `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" class="scatter-dot"><title>${escapeHtml(planet.name)}</title></circle>`;
   }).join('');
 
   elements.physicsMap.innerHTML = `
     <svg viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">
-      <rect x="${bandX1.toFixed(2)}" y="${pad.top}" width="${bandWidth.toFixed(2)}" height="${chartH}" fill="rgba(111,128,98,0.16)" stroke="rgba(111,128,98,0.35)" />
-      <line class="axis-line" x1="${pad.left}" y1="${pad.top + chartH}" x2="${width - pad.right}" y2="${pad.top + chartH}" />
-      <line class="axis-line" x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top + chartH}" />
-      <text class="axis-label" x="${width / 2}" y="${height - 16}" text-anchor="middle">Incident flux, log scale (S⊕)</text>
-      <text class="axis-label" x="18" y="${height / 2}" text-anchor="middle" transform="rotate(-90 18 ${height / 2})">Planet radius, log scale (R⊕)</text>
-      <text class="svg-label" x="${bandX1 + 8}" y="${pad.top + 18}">optimistic HZ flux band</text>
-      <text class="svg-label" x="${pad.left}" y="${height - 35}">${formatScientific(xMin, 1)}</text>
-      <text class="svg-label" x="${width - pad.right}" y="${height - 35}" text-anchor="end">${formatScientific(xMax, 1)}</text>
-      <text class="svg-label" x="${pad.left - 8}" y="${pad.top + chartH}" text-anchor="end">${formatNumber(yMin, 1)}</text>
-      <text class="svg-label" x="${pad.left - 8}" y="${pad.top + 8}" text-anchor="end">${formatNumber(yMax, 1)}</text>
+      <rect class="map-hz-band" x="315" y="22" width="95" height="216" rx="18" />
+      <text class="svg-label" x="42" y="30">cooler orbits</text>
+      <text class="svg-label" x="380" y="30" text-anchor="middle">temperate band</text>
+      <text class="svg-label" x="718" y="30" text-anchor="end">high irradiation</text>
       ${dots}
     </svg>
   `;
@@ -926,12 +908,10 @@ function renderHzChart() {
 function planetMetrics(planet) {
   return [
     ['Method', planet.method],
-    ['Year', planet.discovery_year ?? 'Unknown'],
-    ['Radius', planet.radius_earth === null ? 'Unknown' : `${formatNumber(planet.radius_earth)} R⊕`],
-    ['Mass', planet.mass_earth === null ? 'Unknown' : `${formatNumber(planet.mass_earth)} M⊕`],
-    ['Orbit', planet.orbital_period_days === null ? 'Unknown' : `${formatNumber(planet.orbital_period_days)} days`],
-    ['Distance', planet.distance_pc === null ? 'Unknown' : `${formatNumber(planet.distance_pc, 1)} pc`],
-    ['Star Teff', planet.stellar_temp_k === null ? 'Unknown' : `${formatNumber(planet.stellar_temp_k, 0)} K`],
+    ['Discovery era', discoveryEraLabel(planet.discovery_year)],
+    ['Size family', planet.sizeClass],
+    ['System distance', distanceLabel(planet.distance_pc)],
+    ['Host star', stellarTempLabel(planet.stellar_temp_k)],
     ['Facility', planet.facility],
   ];
 }
@@ -939,13 +919,108 @@ function planetMetrics(planet) {
 function scienceMetrics(planet) {
   const science = getDefaultScience(planet);
   return [
-    ['Flux', isPositive(science.insolation) ? `${formatNumber(science.insolation, 2)} S⊕` : 'Unknown'],
-    ['HZ class', science.hz.label],
-    ['Density', isPositive(science.density) ? `${formatNumber(science.density, 2)} g/cm³` : 'Unknown'],
-    ['Transit', isPositive(science.transitDepthPpm) ? `${formatNumber(science.transitDepthPpm, 0)} ppm` : 'Unknown'],
-    ['RV K', isPositive(science.rvSemiAmplitude) ? `${formatNumber(science.rvSemiAmplitude, 3)} m/s` : 'Unknown'],
-    ['Composition', science.composition],
+    ['Climate read', climateLabel(science)],
+    ['Bulk character', densityLabel(science)],
+    ['Transit signal', transitLabel(science)],
+    ['RV follow-up', rvLabel(science)],
+    ['Atmosphere signal', atmosphereLabel(science)],
+    ['Composition', compositionLabel(science)],
   ];
+}
+
+function discoveryEraLabel(year) {
+  const era = discoveryEra(year);
+  if (era === 'early') return 'early survey record';
+  if (era === 'kepler') return 'space-survey wave';
+  if (era === 'recent') return 'modern archive record';
+  return 'archive era unknown';
+}
+
+function distanceLabel(distancePc) {
+  if (!isPositive(distancePc)) return 'distance unknown';
+  if (distancePc < 25) return 'nearby system';
+  if (distancePc < 150) return 'regional neighborhood';
+  if (distancePc < 1000) return 'deep catalog target';
+  return 'far-field catalog target';
+}
+
+function stellarTempLabel(teff) {
+  if (!isPositive(teff)) return 'stellar type unknown';
+  if (teff < 3900) return 'cool red host';
+  if (teff < 5300) return 'warm orange host';
+  if (teff < 6500) return 'sunlike host';
+  return 'hot luminous host';
+}
+
+function climateLabel(science) {
+  if (science.hz.category === 'conservative') return 'inside main temperate band';
+  if (science.hz.category === 'optimistic') return 'near the temperate edge';
+  if (science.hz.category === 'hot') return 'highly irradiated';
+  if (science.hz.category === 'cold') return 'low-irradiation orbit';
+  return 'climate context unknown';
+}
+
+function densityLabel(science) {
+  if (!isPositive(science.density)) return 'bulk density unknown';
+  if (science.density >= 4.5) return 'rocky-compatible';
+  if (science.density >= 1.5) return 'volatile-rich candidate';
+  return 'puffy low-density world';
+}
+
+function transitLabel(science) {
+  const depth = science.transitDepthPpm;
+  if (!isPositive(depth)) return 'transit not characterized';
+  if (depth >= 5000) return 'very strong transit';
+  if (depth >= 500) return 'clear transit';
+  return 'subtle transit';
+}
+
+function rvLabel(science) {
+  const rv = science.rvSemiAmplitude;
+  if (!isPositive(rv)) return 'RV context unknown';
+  if (rv >= 25) return 'strong stellar wobble';
+  if (rv >= 1) return 'measurable wobble';
+  return 'delicate wobble';
+}
+
+function atmosphereLabel(science) {
+  const signal = science.transmissionSignalPpm;
+  if (!isPositive(signal)) return 'atmosphere proxy unknown';
+  if (signal >= 80) return 'promising spectrum';
+  if (signal >= 20) return 'possible spectrum';
+  return 'challenging spectrum';
+}
+
+function compositionLabel(science) {
+  return science.composition === 'Unknown composition' ? 'not enough mass-radius context' : science.composition;
+}
+
+function planetVisualClass(planet, science) {
+  const classes = ['planet-portrait'];
+  if (['conservative', 'optimistic'].includes(science.hz.category)) classes.push('portrait-temperate');
+  else if (science.hz.category === 'hot') classes.push('portrait-hot');
+  else if (science.hz.category === 'cold') classes.push('portrait-cold');
+  else classes.push('portrait-unknown');
+
+  if (planet.sizeClass === 'Giant' || planet.sizeClass === 'Super-Jupiter') classes.push('portrait-giant');
+  if (isPositive(science.transmissionSignalPpm) && science.transmissionSignalPpm >= 20) classes.push('has-atmosphere');
+  return classes.join(' ');
+}
+
+function planetStory(planet, science) {
+  if (['conservative', 'optimistic'].includes(science.hz.category) && planet.sizeClass === 'Terrestrial') {
+    return 'A compact world in the temperate conversation.';
+  }
+  if (isPositive(science.transmissionSignalPpm) && science.transmissionSignalPpm >= 80) {
+    return 'A strong candidate for atmosphere-focused follow-up.';
+  }
+  if (planet.sizeClass === 'Giant' || planet.sizeClass === 'Super-Jupiter') {
+    return 'A giant planet with a clear observing signature.';
+  }
+  if (densityLabel(science) === 'rocky-compatible') {
+    return 'A dense world with useful mass-radius context.';
+  }
+  return 'A catalog world ready for closer inspection.';
 }
 
 function createPlanetCard(planet) {
@@ -965,18 +1040,26 @@ function createPlanetCard(planet) {
   const badgeClass = science.hz.category === 'hot' || science.hz.category === 'cold' ? 'warning' : '';
 
   article.innerHTML = `
-    <div class="card-top">
-      <div>
-        <h3>${escapeHtml(planet.name)}</h3>
-        <p class="host-name">Host: ${escapeHtml(planet.host)}</p>
+    <div class="world-card-layout">
+      <figure class="${planetVisualClass(planet, science)}" aria-hidden="true">
+        <span></span>
+      </figure>
+      <div class="world-card-copy">
+        <div class="card-top">
+          <div>
+            <h3>${escapeHtml(planet.name)}</h3>
+            <p class="host-name">Around ${escapeHtml(planet.host)}</p>
+          </div>
+          <span class="badge ${badgeClass}">${escapeHtml(hzBadge)}</span>
+        </div>
+        <p class="planet-story">${escapeHtml(planetStory(planet, science))}</p>
+        <div class="card-metrics">
+          <div class="metric"><span>Climate</span><strong>${escapeHtml(climateLabel(science))}</strong></div>
+          <div class="metric"><span>Body type</span><strong>${escapeHtml(densityLabel(science))}</strong></div>
+          <div class="metric"><span>Signal</span><strong>${escapeHtml(transitLabel(science))}</strong></div>
+          <div class="metric"><span>Follow-up</span><strong>${escapeHtml(rvLabel(science))}</strong></div>
+        </div>
       </div>
-      <span class="badge ${badgeClass}">${escapeHtml(hzBadge)}</span>
-    </div>
-    <div class="card-metrics">
-      <div class="metric"><span>Flux</span><strong>${isPositive(science.insolation) ? `${formatNumber(science.insolation, 2)} S⊕` : 'Unknown'}</strong></div>
-      <div class="metric"><span>Density</span><strong>${isPositive(science.density) ? `${formatNumber(science.density, 2)} g/cm³` : 'Unknown'}</strong></div>
-      <div class="metric"><span>Transit</span><strong>${isPositive(science.transitDepthPpm) ? `${formatNumber(science.transitDepthPpm, 0)} ppm` : 'Unknown'}</strong></div>
-      <div class="metric"><span>RV K</span><strong>${isPositive(science.rvSemiAmplitude) ? `${formatNumber(science.rvSemiAmplitude, 3)} m/s` : 'Unknown'}</strong></div>
     </div>
   `;
 
@@ -998,7 +1081,8 @@ function createPlanetCard(planet) {
 
 function renderExplorer() {
   const visiblePlanets = state.filtered.slice(0, state.visible);
-  elements.resultCount.textContent = `${compactNumber(state.filtered.length)} matching planets`;
+  elements.resultCount.textContent = 'Matching worlds';
+  elements.resultCount.title = `${compactNumber(state.filtered.length)} matching planets`;
   elements.planetList.innerHTML = '';
 
   if (!visiblePlanets.length) {
@@ -1298,6 +1382,48 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
+function setTheme(theme) {
+  const nextTheme = THEMES.has(theme) ? theme : 'mission';
+  document.body.dataset.theme = nextTheme;
+  elements.themeButtons.forEach((button) => {
+    const isActive = button.dataset.themeValue === nextTheme;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+  if (elements.themeColor) elements.themeColor.content = THEME_COLORS[nextTheme] ?? THEME_COLORS.mission;
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+  } catch (error) {
+    console.warn('Theme preference could not be saved.', error);
+  }
+}
+
+function initTheme() {
+  let storedTheme = null;
+  try {
+    storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  } catch (error) {
+    storedTheme = null;
+  }
+  setTheme(storedTheme || document.body.dataset.theme || 'mission');
+}
+
+function offsetHashTarget() {
+  if (!window.location.hash) return;
+  const targetId = decodeURIComponent(window.location.hash.slice(1));
+  const target = targetId ? document.getElementById(targetId) : null;
+  if (!target) return;
+  const headerHeight = elements.header?.offsetHeight ?? 0;
+  const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerHeight - 22);
+  window.scrollTo({ top, behavior: 'auto' });
+}
+
+function scheduleHashOffset() {
+  window.requestAnimationFrame(offsetHashTarget);
+  window.setTimeout(offsetHashTarget, 250);
+  window.setTimeout(offsetHashTarget, 900);
+}
+
 function wireEvents() {
   elements.navToggle.addEventListener('click', () => {
     const isOpen = elements.navLinks.classList.toggle('is-open');
@@ -1327,7 +1453,7 @@ function wireEvents() {
     elements.sizeFilter.value = 'all';
     elements.scienceFilter.value = 'all';
     elements.eraFilter.value = 'all';
-    elements.sortSelect.value = 'name-asc';
+    elements.sortSelect.value = 'featured';
     state.visible = PAGE_SIZE;
     applyFilters();
   });
@@ -1345,6 +1471,14 @@ function wireEvents() {
 
   [elements.albedoSlider, elements.atmosphereSelect, elements.scaleHeightsInput]
     .forEach((control) => control.addEventListener('input', renderLab));
+
+  elements.themeButtons.forEach((button) => {
+    button.addEventListener('click', () => setTheme(button.dataset.themeValue));
+  });
+
+  window.addEventListener('hashchange', () => {
+    scheduleHashOffset();
+  });
 }
 
 
@@ -1383,6 +1517,7 @@ async function loadData() {
     if (state.selectedName) elements.labPlanetSelect.value = state.selectedName;
     renderExplorer();
     renderLab();
+    scheduleHashOffset();
   } catch (error) {
     elements.dataStatus.textContent = `Could not load ${DATA_URL}. Use a local web server, not file://.`;
     elements.planetList.innerHTML = `<div class="error-state">Dataset loading failed: ${escapeHtml(error.message)}</div>`;
@@ -1391,5 +1526,6 @@ async function loadData() {
   }
 }
 
+initTheme();
 wireEvents();
 loadData();
