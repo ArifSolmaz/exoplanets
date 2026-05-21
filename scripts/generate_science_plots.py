@@ -36,17 +36,17 @@ ZERO_ALBEDO_EARTH_TEMP_K = 278.5
 KOPPARAPU_TEFF_MIN_K = 2600.0
 KOPPARAPU_TEFF_MAX_K = 7200.0
 
-PAPER = "#fffaf0"
-PAPER_SOFT = "#f7f0df"
-INK = "#1f1b16"
-MUTED = "#756a5d"
-GRID = "#d9cbb6"
-BLUE = "#2f6277"
-TERRA = "#a3583c"
-SAGE = "#687b5d"
-VIOLET = "#6a6387"
-GOLD = "#b9792b"
-GRAY = "#9b9184"
+PAPER = "#fbfeff"
+PAPER_SOFT = "#f4fafb"
+INK = "#10242b"
+MUTED = "#60777f"
+GRID = "#c9dde1"
+BLUE = "#0e7f91"
+TERRA = "#bd4b3f"
+SAGE = "#1f9466"
+VIOLET = "#5968b8"
+GOLD = "#b66f22"
+GRAY = "#8ca0a6"
 
 TARGET_FIGSIZE = (12.8, 7.0)
 GLOBAL_FIGSIZE = (13.4, 7.1)
@@ -276,6 +276,22 @@ def hz_distances(planet: Planet) -> dict[str, float] | None:
     return distances
 
 
+def hz_category(planet: Planet) -> str:
+    distances = hz_distances(planet)
+    if distances is None or not positive(planet.semi_major_axis_au):
+        return "Unknown"
+    orbit = planet.semi_major_axis_au
+    if distances["conservative_inner"] <= orbit <= distances["conservative_outer"]:
+        return "Conservative HZ"
+    if distances["optimistic_inner"] <= orbit <= distances["optimistic_outer"]:
+        return "Optimistic HZ"
+    if orbit < distances["optimistic_inner"]:
+        return "High irradiation"
+    if orbit > distances["optimistic_outer"]:
+        return "Low irradiation"
+    return "Unknown"
+
+
 def transit_depth_ppm(planet: Planet) -> float | None:
     if not positive(planet.radius_earth) or not positive(planet.stellar_radius_solar):
         return None
@@ -325,7 +341,7 @@ def configure_style() -> None:
             "axes.facecolor": PAPER,
             "savefig.facecolor": PAPER,
             "savefig.edgecolor": "none",
-            "font.family": "DejaVu Serif",
+            "font.family": "DejaVu Sans",
             "font.size": 12,
             "axes.titlesize": 18,
             "axes.labelsize": 13,
@@ -333,7 +349,7 @@ def configure_style() -> None:
             "ytick.labelsize": 11,
             "legend.fontsize": 10.5,
             "axes.labelcolor": INK,
-            "axes.edgecolor": "#b9a98f",
+            "axes.edgecolor": "#8bbac3",
             "axes.titlecolor": INK,
             "xtick.color": MUTED,
             "ytick.color": MUTED,
@@ -343,7 +359,7 @@ def configure_style() -> None:
             "legend.frameon": True,
             "legend.framealpha": 0.92,
             "legend.facecolor": PAPER,
-            "legend.edgecolor": "#d4c3aa",
+            "legend.edgecolor": "#c9dde1",
             "svg.fonttype": "none",
         }
     )
@@ -566,7 +582,7 @@ def plot_rv_curve(planet: Planet, path: Path) -> None:
     save(fig, path)
 
 
-def plot_mass_radius_context(planets: list[Planet], selected: Planet, path: Path) -> None:
+def plot_mass_radius_context(planets: list[Planet], selected: Planet | None, path: Path) -> None:
     rows = [p for p in planets if positive(p.mass_earth) and positive(p.radius_earth)]
     if not rows:
         placeholder(path, "Mass-radius context", "The catalog needs planet masses and radii for this population diagram.")
@@ -579,7 +595,7 @@ def plot_mass_radius_context(planets: list[Planet], selected: Planet, path: Path
     fig, ax = plt.subplots(figsize=TARGET_FIGSIZE)
     ax.scatter(radius, mass, s=34, c=BLUE, alpha=0.62, edgecolors="none", label="catalog planets")
 
-    if positive(selected.radius_earth) and positive(selected.mass_earth):
+    if selected is not None and positive(selected.radius_earth) and positive(selected.mass_earth):
         ax.scatter(
             [selected.radius_earth],
             [selected.mass_earth],
@@ -696,6 +712,33 @@ def plot_method_distribution(planets: list[Planet], path: Path) -> None:
     save(fig, path)
 
 
+def plot_hz_distribution(planets: list[Planet], path: Path) -> None:
+    order = ["Conservative HZ", "Optimistic HZ", "High irradiation", "Low irradiation", "Unknown"]
+    palette = [SAGE, BLUE, TERRA, VIOLET, GRAY]
+    categories = pd.Series([hz_category(p) for p in planets]).value_counts().reindex(order, fill_value=0)
+    if categories.empty:
+        placeholder(path, "Habitable-zone triage", "Orbital distance and stellar luminosity are required for this figure.")
+        return
+
+    configure_style()
+    fig, ax = plt.subplots(figsize=GLOBAL_FIGSIZE)
+    y = np.arange(len(order))
+    ax.barh(y, categories.values, color=palette, alpha=0.82)
+    ax.set_yticks(y)
+    ax.set_yticklabels(order)
+    ax.invert_yaxis()
+    ax.set_xlabel("Planets in loaded catalog")
+    ax.set_ylabel("")
+    ax.set_title("Habitable-zone triage in the loaded dataset", loc="left", fontsize=18, fontweight="bold")
+    ax.grid(True, axis="x")
+    max_count = max(int(categories.max()), 1)
+    ax.set_xlim(0, max_count * 1.14)
+    for index, value in enumerate(categories.values):
+        ax.text(value + max_count * 0.018, index, f"{int(value):,}", va="center", ha="left", color=INK, fontsize=12)
+    annotate_data_source(ax, "Kopparapu-style HZ distances")
+    save(fig, path)
+
+
 def select_targets(planets: list[Planet], limit: int) -> list[Planet]:
     by_name = {p.name: p for p in planets}
     selected: list[Planet] = []
@@ -744,6 +787,7 @@ def write_manifest(output_dir: Path, meta: dict[str, Any], target_paths: dict[st
         "global_plots": {
             "radius_flux": "./assets/plots/global/radius_flux_map.svg",
             "mass_radius": "./assets/plots/global/mass_radius_population.svg",
+            "habitability": "./assets/plots/global/habitable_zone_distribution.svg",
             "timeline": "./assets/plots/global/discovery_timeline.svg",
             "methods": "./assets/plots/global/method_distribution.svg",
         },
@@ -770,7 +814,8 @@ def main() -> int:
     target_dir.mkdir(parents=True, exist_ok=True)
 
     plot_radius_flux_map(planets, global_dir / "radius_flux_map.svg")
-    plot_mass_radius_context(planets, planets[0], global_dir / "mass_radius_population.svg")
+    plot_mass_radius_context(planets, None, global_dir / "mass_radius_population.svg")
+    plot_hz_distribution(planets, global_dir / "habitable_zone_distribution.svg")
     plot_discovery_timeline(planets, global_dir / "discovery_timeline.svg")
     plot_method_distribution(planets, global_dir / "method_distribution.svg")
 

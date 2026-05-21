@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-05-18T08:17:08+00:00",
+  "generated_utc": "2026-05-18T15:11:07+00:00",
   "generator": "scripts/generate_science_plots.py",
   "catalog_mode": "nasa-tap",
   "target_count": 16,
@@ -104,6 +104,7 @@
   "global_plots": {
     "radius_flux": "./assets/plots/global/radius_flux_map.svg",
     "mass_radius": "./assets/plots/global/mass_radius_population.svg",
+    "habitability": "./assets/plots/global/habitable_zone_distribution.svg",
     "timeline": "./assets/plots/global/discovery_timeline.svg",
     "methods": "./assets/plots/global/method_distribution.svg"
   }

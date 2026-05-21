@@ -3,20 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Open Exoplanet Explorer | Field Guide</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <title>Open Exoplanet Explorer | Research Lab</title>
     <meta
       name="description"
-      content="A public exoplanet field guide that starts with planet stories, science lenses, and visual browsing before opening exact NASA archive measurements in the lab."
+      content="A research-grade exoplanet analysis lab for NASA archive targets, derived physics, follow-up triage, and observatory notes."
     />
     <meta name="author" content="Arif Solmaz" />
-    <meta property="og:title" content="Open Exoplanet Explorer | Field Guide" />
+    <meta property="og:title" content="Open Exoplanet Explorer | Research Lab" />
     <meta
       property="og:description"
-      content="Browse exoplanets by story, science lens, and visual character, then open the lab when you want the measured archive values."
+      content="Analyze exoplanets through a premium science-lab interface with target triage, derived physics, and observatory-ready diagnostics."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://arifsolmaz.github.io/exoplanets/" />
-    <meta name="theme-color" content="#f7f9f7" />
+    <meta name="theme-color" content="#eef5f7" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <script>
       window.MathJax = {
@@ -34,7 +35,7 @@
       };
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-    <link rel="stylesheet" href="./assets/css/styles.css" />
+    <link rel="stylesheet" href="./assets/css/styles.css?v=lab-renovation-10" />
   </head>
   <body data-theme="mission">
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -49,8 +50,8 @@
           Menu
         </button>
         <div class="nav-links" id="navLinks">
-          <a href="#dashboard">Lenses</a>
-          <a href="#explorer">Worlds</a>
+          <a href="#explorer">Targets</a>
+          <a href="#dashboard">Instruments</a>
           <a href="#science-lab">Lab</a>
           <a href="#equations">Physics</a>
           <a href="#methods">Methods</a>
@@ -62,31 +63,38 @@
     <main id="main">
       <section class="hero section-shell" aria-labelledby="heroTitle">
         <div class="hero-copy">
-          <p class="eyebrow">Open exoplanet field guide</p>
-          <h1 id="heroTitle">Find worlds worth looking at.</h1>
+          <p class="eyebrow">NASA archive workspace</p>
+          <h1 id="heroTitle">Target Analysis Console</h1>
           <p class="hero-lede">
-            A calmer way into the archive: start with recognizable planet stories, then open the
-            lab only when you want the measurements behind them.
+            Prioritize follow-up candidates, inspect diagnostics, and move directly into the science bench.
           </p>
-          <div class="theme-switcher" aria-label="Design alternatives">
-            <span>View</span>
-            <button type="button" class="theme-option is-active" data-theme-value="mission" aria-pressed="true">Field Guide</button>
-            <button type="button" class="theme-option" data-theme-value="atlas" aria-pressed="false">Stellar Atlas</button>
-            <button type="button" class="theme-option" data-theme-value="nocturne" aria-pressed="false">Night Lab</button>
+          <div class="queue-list" aria-label="Featured target queue">
+            <a class="queue-item" href="#explorer">
+              <span>Priority queue</span>
+              <strong>Temperate nearby targets</strong>
+              <small>Open the target board</small>
+            </a>
+            <a class="queue-item" href="#dashboard">
+              <span>Instrument deck</span>
+              <strong>Climate, class, signal channels</strong>
+              <small>Review diagnostics</small>
+            </a>
+            <a class="queue-item" href="#science-lab">
+              <span>Analysis bench</span>
+              <strong>Derived physics and plots</strong>
+              <small>Run selected target</small>
+            </a>
           </div>
           <div class="hero-actions">
-            <a class="button button-primary" href="#explorer">Browse worlds</a>
-            <a class="button button-secondary" href="#dashboard">See science lenses</a>
-            <a class="button button-secondary" href="#science-lab">Open lab</a>
+            <a class="button button-primary" href="#explorer">Open targets</a>
+            <a class="button button-secondary" href="#dashboard">Review instruments</a>
+            <a class="button button-secondary" href="#science-lab">Run lab</a>
           </div>
-          <p class="deployment-note">
-            The exact archive values are still here; they are just tucked behind a more readable first layer.
-          </p>
         </div>
         <div class="orbital-stage" aria-hidden="true">
           <div class="stage-topline">
-            <span>featured route</span>
-            <span>world profile</span>
+            <span>active field model</span>
+            <span>candidate orbit stack</span>
           </div>
           <div class="system-portrait">
             <div class="survey-grid"></div>
@@ -101,21 +109,39 @@
             <div class="system-ring ring-two"></div>
             <div class="system-ring ring-three"></div>
             <div class="system-core"></div>
-            <div class="signal-card signal-hz">temperate trail</div>
-            <div class="signal-card signal-transit">atmosphere picks</div>
-            <div class="signal-card signal-density">strange worlds</div>
+            <div class="signal-card signal-hz">climate window</div>
+            <div class="signal-card signal-transit">transit signal</div>
+            <div class="signal-card signal-density">density context</div>
           </div>
           <div class="stage-readouts">
-            <span>habitable-zone candidates</span>
-            <span>transit-friendly worlds</span>
-            <span>nearby systems</span>
+            <span>habitable-zone scan</span>
+            <span>geometry check</span>
+            <span>follow-up path</span>
           </div>
         </div>
+        <aside class="quicklook-panel" aria-label="Workspace controls">
+          <div class="module-heading">
+            <span>Workspace mode</span>
+            <strong>Choose a lab skin</strong>
+          </div>
+          <div class="theme-switcher" aria-label="Design alternatives">
+            <span>Interface</span>
+            <button type="button" class="theme-option is-active" data-theme-value="mission" aria-pressed="true">Clean Room</button>
+            <button type="button" class="theme-option" data-theme-value="atlas" aria-pressed="false">Flight Deck</button>
+            <button type="button" class="theme-option" data-theme-value="nocturne" aria-pressed="false">Deep Space</button>
+          </div>
+          <div class="protocol-list">
+            <div><span>Archive link</span><strong>Connected</strong></div>
+            <div><span>Target cards</span><strong>Prioritized</strong></div>
+            <div><span>Model layer</span><strong>Ready</strong></div>
+            <div><span>Publication view</span><strong>Available</strong></div>
+          </div>
+        </aside>
       </section>
 
       <section class="status-strip section-shell" aria-live="polite">
         <div>
-          <span class="status-label">Dataset status</span>
+          <span class="status-label">Archive link</span>
           <p id="dataStatus">Loading exoplanet dataset…</p>
         </div>
         <a class="text-link" href="./data/exoplanets.json">Open JSON data</a>
@@ -144,67 +170,14 @@
         </article>
       </section>
 
-      <section id="dashboard" class="section-shell section-panel" aria-labelledby="dashboardTitle">
-        <div class="section-heading">
-          <p class="eyebrow">Science lenses</p>
-          <h2 id="dashboardTitle">Choose a lens before you open the lab</h2>
-          <p>
-            Start with the kind of world you want to understand. The archive still has the precise
-            measurements, but this layer reads like a guidebook instead of a spreadsheet.
-          </p>
-        </div>
-        <div class="dashboard-grid lens-grid">
-          <article class="chart-card lens-card lens-card-climate">
-            <div class="chart-heading">
-              <h3>Temperate routes</h3>
-              <span>climate paths</span>
-            </div>
-            <p class="lens-copy">Find worlds that sit near the archive's habitable-zone story.</p>
-            <div id="hzChart" class="bar-chart lens-visual" role="img" aria-label="Habitable-zone story lens"></div>
-          </article>
-          <article class="chart-card lens-card lens-card-family">
-            <div class="chart-heading">
-              <h3>World families</h3>
-              <span>visual family</span>
-            </div>
-            <p class="lens-copy">Move between rocky worlds, sub-Neptunes, giants, and uncertain records.</p>
-            <div id="sizeChart" class="bar-chart lens-visual" role="img" aria-label="Planet family lens"></div>
-          </article>
-          <article class="chart-card lens-card lens-card-method">
-            <div class="chart-heading">
-              <h3>Detection stories</h3>
-              <span id="methodChartNote">observing paths</span>
-            </div>
-            <p class="lens-copy">See whether a world revealed itself through shadow, wobble, lensing, or direct light.</p>
-            <div id="methodChart" class="bar-chart lens-visual" role="img" aria-label="Discovery-method story lens"></div>
-          </article>
-          <article class="chart-card wide-card lens-card lens-card-map">
-            <div class="chart-heading">
-              <h3>Survey terrain</h3>
-              <span>target landscape</span>
-            </div>
-            <p class="lens-copy">A map-like view of where worlds fall from cool prospects to high-irradiation outliers.</p>
-            <div id="physicsMap" class="svg-chart lens-visual" role="img" aria-label="Exoplanet target landscape"></div>
-          </article>
-          <article class="chart-card lens-card lens-card-era">
-            <div class="chart-heading">
-              <h3>Archive eras</h3>
-              <span>discovery waves</span>
-            </div>
-            <p class="lens-copy">Follow the catalog from early ground-based records into modern survey finds.</p>
-            <div id="timelineChart" class="timeline-chart lens-visual" role="img" aria-label="Discovery-era story lens"></div>
-          </article>
-        </div>
-      </section>
-
       <section id="explorer" class="section-shell section-panel" aria-labelledby="explorerTitle">
         <div class="section-heading two-column-heading">
           <div>
-            <p class="eyebrow">World browser</p>
-            <h2 id="explorerTitle">Browse planets by story</h2>
+            <p class="eyebrow">Target board</p>
+            <h2 id="explorerTitle">Prioritize candidate worlds</h2>
             <p>
-              Start from featured worlds, filter by science case, and open any card for the measured
-              readout.
+              Start from featured systems, filter by science case, and open any target dossier for
+              measured and modeled readouts.
             </p>
           </div>
           <button class="button button-secondary" type="button" id="resetFilters">Reset filters</button>
@@ -275,29 +248,82 @@
           <div class="results-column">
             <div class="results-header">
               <p id="resultCount">Loading records…</p>
-              <p class="muted">Click a card to analyze it in the lab.</p>
+              <p class="muted">Click a target to analyze it in the lab.</p>
             </div>
             <div id="planetList" class="planet-grid" aria-live="polite"></div>
             <button class="button button-secondary load-more" type="button" id="loadMore">Load more</button>
           </div>
 
           <aside class="detail-panel" aria-labelledby="detailTitle">
-            <p class="eyebrow">Selected planet</p>
+            <p class="eyebrow">Target dossier</p>
             <h3 id="detailTitle">No planet selected</h3>
             <p id="detailSubtitle" class="muted">Choose a planet card to view measured and derived properties.</p>
             <dl class="detail-list" id="detailList"></dl>
-            <h4>Science readout</h4>
+            <h4>Signal readout</h4>
             <dl class="detail-list compact" id="detailScienceList"></dl>
             <p id="detailDescription" class="detail-description"></p>
-            <a class="button button-primary panel-action" id="analyzeButton" href="#science-lab">Analyze in science lab</a>
+            <a class="button button-primary panel-action" id="analyzeButton" href="#science-lab">Open in lab</a>
           </aside>
+        </div>
+      </section>
+
+      <section id="dashboard" class="section-shell section-panel" aria-labelledby="dashboardTitle">
+        <div class="section-heading">
+          <p class="eyebrow">Instrument deck</p>
+          <h2 id="dashboardTitle">Select an analysis instrument</h2>
+          <p>
+            The first layer behaves like a science control room: pick the diagnostic you need,
+            then open a target for the exact measurements and derived model readouts.
+          </p>
+        </div>
+        <div class="dashboard-grid lens-grid">
+          <article class="chart-card lens-card lens-card-climate">
+            <div class="chart-heading">
+              <h3>Climate window</h3>
+              <span>thermal triage</span>
+            </div>
+            <p class="lens-copy">Separate high-irradiation records from candidates worth climate inspection.</p>
+            <div id="hzChart" class="bar-chart lens-visual" role="img" aria-label="Habitable-zone story lens"></div>
+          </article>
+          <article class="chart-card lens-card lens-card-family">
+            <div class="chart-heading">
+              <h3>Mass-radius regime</h3>
+              <span>population plot</span>
+            </div>
+            <p class="lens-copy">Inspect the loaded catalog against density contours and structural regimes.</p>
+            <div id="sizeChart" class="bar-chart lens-visual" role="img" aria-label="Planet family lens"></div>
+          </article>
+          <article class="chart-card lens-card lens-card-method">
+            <div class="chart-heading">
+              <h3>Detection channel</h3>
+              <span id="methodChartNote">survey methods</span>
+            </div>
+            <p class="lens-copy">Understand whether the planet entered the archive through shadow, wobble, lensing, or direct light.</p>
+            <div id="methodChart" class="bar-chart lens-visual" role="img" aria-label="Discovery-method story lens"></div>
+          </article>
+          <article class="chart-card wide-card lens-card lens-card-map">
+            <div class="chart-heading">
+              <h3>Target field</h3>
+              <span>log-log field</span>
+            </div>
+            <p class="lens-copy">Scan radius against incident stellar flux with a labelled temperate-flux interval.</p>
+            <div id="physicsMap" class="svg-chart lens-visual" role="img" aria-label="Exoplanet target landscape"></div>
+          </article>
+          <article class="chart-card lens-card lens-card-era">
+            <div class="chart-heading">
+              <h3>Archive cadence</h3>
+              <span>survey wave</span>
+            </div>
+            <p class="lens-copy">Track how the target pool shifts from early ground campaigns to current survey records.</p>
+            <div id="timelineChart" class="timeline-chart lens-visual" role="img" aria-label="Discovery-era story lens"></div>
+          </article>
         </div>
       </section>
 
       <section id="science-lab" class="section-shell section-panel" aria-labelledby="labTitleSection">
         <div class="section-heading">
-          <p class="eyebrow">Observatory notebook</p>
-          <h2 id="labTitleSection">Selected-world observing notes</h2>
+          <p class="eyebrow">Interactive analysis bench</p>
+          <h2 id="labTitleSection">Selected-target science lab</h2>
           <p>
             The science figures are generated by Python/Matplotlib during the data-refresh workflow,
             then served as responsive SVGs that use the full browser width where possible. Change albedo
@@ -695,12 +721,12 @@
 
     <footer class="site-footer section-shell">
       <p>
-        Built by Arif Solmaz as an open, public GitHub Pages exoplanet observatory notebook. Use the included
+        Built by Arif Solmaz as an open, public GitHub Pages exoplanet research lab. Use the included
         archive workflow for official NASA-derived values; treat browser-side estimates as educational
         approximations.
       </p>
     </footer>
 
-    <script type="module" src="./assets/js/app.js"></script>
+    <script type="module" src="./assets/js/app.js?v=lab-renovation-10"></script>
   </body>
 </html>

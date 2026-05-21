@@ -1,12 +1,12 @@
 const DATA_URL = './data/exoplanets.json';
 const PLOT_MANIFEST_URL = './assets/plots/manifest.json';
 const PAGE_SIZE = 12;
-const THEME_STORAGE_KEY = 'open-exoplanet-explorer-theme';
+const THEME_STORAGE_KEY = 'open-exoplanet-explorer-theme-v5';
 const THEMES = new Set(['mission', 'atlas', 'nocturne']);
 const THEME_COLORS = {
-  mission: '#f7f9f7',
-  atlas: '#f7f4ed',
-  nocturne: '#090a0f',
+  mission: '#eef5f7',
+  atlas: '#071015',
+  nocturne: '#060713',
 };
 const FEATURED_TARGETS = [
   'Proxima Cen b',
@@ -573,8 +573,24 @@ function getDefaultScience(planet) {
   return derivePlanetScience(planet, DEFAULT_ASSUMPTIONS);
 }
 
+function hasTargetPlotPack(planet) {
+  if (!planet || !state.plotManifest?.target_plots) return false;
+  const target = state.plotManifest.target_plots[planet.name];
+  return Boolean(
+    target?.habitable_zone
+    && target?.transit_light_curve
+    && target?.radial_velocity
+    && target?.mass_radius_context
+  );
+}
 
 function chooseInitialPlanet(planets) {
+  for (const name of FEATURED_TARGETS) {
+    const match = planets.find((planet) => planet.name === name);
+    if (match && hasTargetPlotPack(match)) return match;
+  }
+  const plottedTarget = planets.find(hasTargetPlotPack);
+  if (plottedTarget) return plottedTarget;
   for (const name of FEATURED_TARGETS) {
     const match = planets.find((planet) => planet.name === name);
     if (match) return match;
@@ -763,7 +779,7 @@ function populateLabSelect() {
 function renderStatus() {
   const mode = state.meta.mode ? `${state.meta.mode} catalog` : 'catalog';
   const source = state.meta.source ? ` from ${state.meta.source}` : '';
-  elements.dataStatus.textContent = `NASA archive ${mode}${source} is loaded. Exact values live in the science lab.`;
+  elements.dataStatus.textContent = `NASA archive ${mode}${source} is connected. Target dossiers and lab calculations are ready.`;
   elements.dataStatus.title = `${compactNumber(state.planets.length)} planet records`;
 }
 
@@ -829,12 +845,16 @@ function renderBarChart(container, entries, options = {}) {
 
 function renderCharts() {
   const methodEntries = sortEntriesDescending(countBy(state.planets, (planet) => planet.method)).slice(0, 5);
-  elements.methodChartNote.textContent = 'observing paths';
-  renderBarChart(elements.methodChart, methodEntries);
+  elements.methodChartNote.textContent = 'survey methods';
+  if (!renderGlobalPlot(elements.methodChart, 'methods', 'Discovery-method distribution for the loaded exoplanet catalog')) {
+    renderBarChart(elements.methodChart, methodEntries, { numeric: true });
+  }
 
   const sizeOrder = ['Terrestrial', 'Super-Earth', 'Sub-Neptune', 'Giant', 'Super-Jupiter', 'Unknown'];
   const sizeCounts = countBy(state.planets, (planet) => planet.sizeClass);
-  renderBarChart(elements.sizeChart, sizeOrder.map((label) => [label, sizeCounts.get(label) ?? 0]));
+  if (!renderGlobalPlot(elements.sizeChart, 'mass_radius', 'Mass-radius population plot for the loaded exoplanet catalog')) {
+    renderBarChart(elements.sizeChart, sizeOrder.map((label) => [label, sizeCounts.get(label) ?? 0]), { numeric: true });
+  }
 
   renderTimelineChart();
   renderPhysicsMap();
@@ -842,6 +862,8 @@ function renderCharts() {
 }
 
 function renderTimelineChart() {
+  if (renderGlobalPlot(elements.timelineChart, 'timeline', 'Discovery timeline for the loaded exoplanet catalog')) return;
+
   const eraCounts = countBy(state.planets, (planet) => discoveryEra(planet.discovery_year));
   renderBarChart(elements.timelineChart, [
     ['Early searches', eraCounts.get('early') ?? 0],
@@ -857,6 +879,8 @@ function logScale(value, min, max, size) {
 }
 
 function renderPhysicsMap() {
+  if (renderGlobalPlot(elements.physicsMap, 'radius_flux', 'Planet radius versus incident stellar flux for the loaded exoplanet catalog')) return;
+
   const points = state.planets
     .map((planet) => ({ planet, science: getDefaultScience(planet) }))
     .filter(({ planet, science }) => isPositive(planet.radius_earth) && isPositive(science.insolation));
@@ -866,30 +890,64 @@ function renderPhysicsMap() {
     return;
   }
 
-  const width = 760;
-  const height = 260;
+  const width = 820;
+  const height = 420;
+  const pad = { top: 34, right: 28, bottom: 60, left: 70 };
+  const plotW = width - pad.left - pad.right;
+  const plotH = height - pad.top - pad.bottom;
+  const fluxValues = points.map(({ science }) => science.insolation).filter(isPositive);
+  const radiusValues = points.map(({ planet }) => planet.radius_earth).filter(isPositive);
+  const minFlux = Math.max(0.01, Math.min(...fluxValues) * 0.65);
+  const maxFlux = Math.max(3, Math.max(...fluxValues) * 1.25);
+  const minRadius = Math.max(0.2, Math.min(...radiusValues) * 0.75);
+  const maxRadius = Math.max(20, Math.max(...radiusValues) * 1.2);
+  const xFor = (value) => pad.left + logScale(value, minFlux, maxFlux, plotW);
+  const yFor = (value) => pad.top + plotH - logScale(value, minRadius, maxRadius, plotH);
+  const xTicks = [0.01, 0.1, 1, 10, 100, 1000].filter((tick) => tick >= minFlux && tick <= maxFlux);
+  const yTicks = [0.3, 1, 3, 10, 30].filter((tick) => tick >= minRadius && tick <= maxRadius);
+  const hzX1 = xFor(Math.max(0.32, minFlux));
+  const hzX2 = xFor(Math.min(1.78, maxFlux));
 
-  const dots = points.slice(0, 260).map(({ planet, science }, index) => {
-    const x = 54 + ((index * 47) % 650);
-    const y = 38 + ((index * 83) % 178);
-    const radius = planet.radius_earth < 2 ? 3.2 : planet.radius_earth < 4 ? 4.5 : 6.2;
+  const grid = [
+    ...xTicks.map((tick) => `<line class="grid-line" x1="${xFor(tick)}" y1="${pad.top}" x2="${xFor(tick)}" y2="${pad.top + plotH}" />`),
+    ...yTicks.map((tick) => `<line class="grid-line" x1="${pad.left}" y1="${yFor(tick)}" x2="${pad.left + plotW}" y2="${yFor(tick)}" />`),
+  ].join('');
+  const labels = [
+    ...xTicks.map((tick) => `<text class="axis-label" x="${xFor(tick)}" y="${height - 25}" text-anchor="middle">${formatNumber(tick, 2)}</text>`),
+    ...yTicks.map((tick) => `<text class="axis-label" x="${pad.left - 12}" y="${yFor(tick) + 4}" text-anchor="end">${tick}</text>`),
+  ].join('');
+  const dots = points.slice(0, 360).map(({ planet, science }) => {
     const category = science.hz.category;
-    const fill = category === 'conservative' || category === 'optimistic' ? '#6f8062' : category === 'hot' ? '#9b5b45' : category === 'cold' ? '#6f6a8d' : '#375f73';
-    return `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" class="scatter-dot"><title>${escapeHtml(planet.name)}</title></circle>`;
+    const className = category === 'conservative' || category === 'optimistic'
+      ? 'scatter-hz'
+      : category === 'hot'
+      ? 'scatter-hot'
+      : category === 'cold'
+      ? 'scatter-cold'
+      : 'scatter-unknown';
+    const radius = planet.radius_earth < 2 ? 3.4 : planet.radius_earth < 4 ? 4.4 : 5.8;
+    return `<circle cx="${xFor(science.insolation).toFixed(2)}" cy="${yFor(planet.radius_earth).toFixed(2)}" r="${radius}" class="scatter-dot ${className}"><title>${escapeHtml(planet.name)}: R=${formatNumber(planet.radius_earth, 2)} R_earth, S=${formatNumber(science.insolation, 2)} S_earth</title></circle>`;
   }).join('');
 
   elements.physicsMap.innerHTML = `
     <svg viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">
-      <rect class="map-hz-band" x="315" y="22" width="95" height="216" rx="18" />
-      <text class="svg-label" x="42" y="30">cooler orbits</text>
-      <text class="svg-label" x="380" y="30" text-anchor="middle">temperate band</text>
-      <text class="svg-label" x="718" y="30" text-anchor="end">high irradiation</text>
+      <rect class="plot-frame" x="${pad.left}" y="${pad.top}" width="${plotW}" height="${plotH}" />
+      <rect class="map-hz-band" x="${hzX1}" y="${pad.top}" width="${Math.max(0, hzX2 - hzX1)}" height="${plotH}" />
+      ${grid}
       ${dots}
+      <line class="axis-line" x1="${pad.left}" y1="${pad.top + plotH}" x2="${pad.left + plotW}" y2="${pad.top + plotH}" />
+      <line class="axis-line" x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top + plotH}" />
+      ${labels}
+      <text class="axis-label" x="${pad.left + plotW / 2}" y="${height - 8}" text-anchor="middle">Incident flux (S_earth, log scale)</text>
+      <text class="axis-label" x="20" y="${pad.top + plotH / 2}" text-anchor="middle" transform="rotate(-90 20 ${pad.top + plotH / 2})">Planet radius (R_earth, log scale)</text>
+      <text class="svg-label" x="${hzX1 + 8}" y="${pad.top + 18}">temperate-flux interval</text>
     </svg>
   `;
 }
 
 function renderHzChart() {
+  if (renderGlobalPlot(elements.hzChart, 'habitability', 'Habitable-zone triage distribution for the loaded exoplanet catalog')) return;
+
   const labels = [
     { key: 'conservative', label: 'Conservative HZ', className: 'hz-good' },
     { key: 'optimistic', label: 'Optimistic HZ', className: 'hz-good' },
@@ -898,11 +956,46 @@ function renderHzChart() {
     { key: 'unknown', label: 'Unknown', className: 'hz-unknown' },
   ];
   const counts = countBy(state.planets, (planet) => getDefaultScience(planet).hz.category);
-  renderBarChart(elements.hzChart, labels.map((item) => ({
+  const entries = labels.map((item) => ({
     label: item.label,
     count: counts.get(item.key) ?? 0,
     className: item.className,
-  })));
+  }));
+  const width = 760;
+  const height = 330;
+  const pad = { top: 22, right: 32, bottom: 48, left: 154 };
+  const plotW = width - pad.left - pad.right;
+  const rowH = 44;
+  const max = Math.max(...entries.map((entry) => entry.count), 1);
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => Math.round(max * ratio));
+  const grid = ticks.map((tick) => {
+    const x = pad.left + (tick / max) * plotW;
+    return `<line class="grid-line" x1="${x}" y1="${pad.top}" x2="${x}" y2="${pad.top + rowH * entries.length}" />`;
+  }).join('');
+  const tickLabels = ticks.map((tick) => {
+    const x = pad.left + (tick / max) * plotW;
+    return `<text class="axis-label" x="${x}" y="${height - 20}" text-anchor="middle">${compactNumber(tick)}</text>`;
+  }).join('');
+  const bars = entries.map((entry, index) => {
+    const y = pad.top + index * rowH + 8;
+    const barW = Math.max(entry.count ? 3 : 0, (entry.count / max) * plotW);
+    return `
+      <text class="axis-label" x="${pad.left - 12}" y="${y + 19}" text-anchor="end">${escapeHtml(entry.label)}</text>
+      <rect class="bar-track-svg" x="${pad.left}" y="${y}" width="${plotW}" height="18" rx="9" />
+      <rect class="bar-fill-svg ${escapeHtml(entry.className)}" x="${pad.left}" y="${y}" width="${barW}" height="18" rx="9" />
+      <text class="svg-label" x="${pad.left + barW + 8}" y="${y + 14}">${compactNumber(entry.count)}</text>
+    `;
+  }).join('');
+  elements.hzChart.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">
+      <rect class="plot-frame" x="${pad.left}" y="${pad.top}" width="${plotW}" height="${rowH * entries.length}" />
+      ${grid}
+      ${bars}
+      <line class="axis-line" x1="${pad.left}" y1="${pad.top + rowH * entries.length}" x2="${pad.left + plotW}" y2="${pad.top + rowH * entries.length}" />
+      ${tickLabels}
+      <text class="axis-label" x="${pad.left + plotW / 2}" y="${height - 4}" text-anchor="middle">Planets in loaded catalog</text>
+    </svg>
+  `;
 }
 
 function planetMetrics(planet) {
@@ -1081,7 +1174,7 @@ function createPlanetCard(planet) {
 
 function renderExplorer() {
   const visiblePlanets = state.filtered.slice(0, state.visible);
-  elements.resultCount.textContent = 'Matching worlds';
+  elements.resultCount.textContent = 'Candidate targets';
   elements.resultCount.title = `${compactNumber(state.filtered.length)} matching planets`;
   elements.planetList.innerHTML = '';
 
@@ -1413,8 +1506,9 @@ function offsetHashTarget() {
   const targetId = decodeURIComponent(window.location.hash.slice(1));
   const target = targetId ? document.getElementById(targetId) : null;
   if (!target) return;
-  const headerHeight = elements.header?.offsetHeight ?? 0;
-  const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerHeight - 22);
+  const anchor = target.querySelector('.section-heading') ?? target;
+  const headerHeight = Math.min(elements.header?.getBoundingClientRect().height ?? 0, 96);
+  const top = Math.max(0, anchor.getBoundingClientRect().top + window.scrollY - headerHeight - 18);
   window.scrollTo({ top, behavior: 'auto' });
 }
 
