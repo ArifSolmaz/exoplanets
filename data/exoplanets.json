@@ -3,7 +3,7 @@
     "mode": "nasa-tap",
     "source": "NASA Exoplanet Archive TAP service",
     "source_table": "pscomppars",
-    "generated_utc": "2026-07-20T07:32:31Z",
+    "generated_utc": "2026-07-27T07:54:54Z",
     "record_count": 6324,
     "query": "select pl_name, hostname, discoverymethod, disc_year, disc_facility, pl_rade, pl_bmasse, pl_orbper, pl_orbsmax, pl_orbeccen, pl_orbincl, pl_eqt, pl_insol, pl_dens, sy_dist, sy_vmag, sy_kmag, st_teff, st_spectype, st_rad, st_mass, st_lum from pscomppars where pl_name is not null order by pl_name asc",
     "tap_sync_endpoint": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync",
